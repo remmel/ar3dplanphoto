@@ -7,8 +7,25 @@ There are multiple possilities/framework to do that:
 
 # unity-arfoundation-3dplanphoto
 Try doing that using Unity Ar Fondation framework
-Can currently add a cube and take a screenshot, waouh!...
-Next objective: add a cube and apply the real texture on it
+Can currently put 6 markers on 6 room faces and generate the corners and 6 quads with dumb texture. Can remove marker when clicking into it.
+
+Unity/Scenes :
+- ARScene : main application
+- PCScene : debug application, no need of mobile
+- ProjectorTest : in order to test the projection shader (alternative in [threejs](https://codesandbox.io/s/project-camera-gby2i))
+
+
+Todo:
+- ARScene :
+    - take a picture and apply texture
+    - Handle multiple rooms
+    - Generate floormap
+    - Generate obj
+- ARCube : from smartphone, place a cube and project texture
+- Java : convert Unity to Android Java project
+
+Problem:
+- Unity/ARScene : drift problem, locations of markers changes
 
 
 1. Clic=Add cube + Take picture + 1 one face texture (flat)
