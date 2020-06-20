@@ -12,7 +12,6 @@ public class PlacementIndicatorS : MonoBehaviour
     {
         rayManager = FindObjectOfType<ARRaycastManager>();
         visual = transform.GetChild(0).gameObject;
-
         visual.SetActive(false);
     }
 
