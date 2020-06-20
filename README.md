@@ -12,7 +12,7 @@ Can currently put 6 markers on 6 room faces and generate the corners and 6 quads
 Unity/Scenes :
 - ARScene : main application
 - PCScene : debug application, no need of mobile
-- ProjectorTest : in order to test the projection shader (alternative in [threejs](https://codesandbox.io/s/project-camera-gby2i))
+- ProjectorTest : in order to test the projection shader (alternative in [threejs](https://codesandbox.io/s/project-camera-gby2i)). Using [Unity Projector and Standard Asset shader](https://docs.unity3d.com/Manual/class-Projector.html)
 
 
 Todo:
