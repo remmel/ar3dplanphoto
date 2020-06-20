@@ -288,13 +288,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 863287545}
-  m_LocalRotation: {x: -0.28273645, y: 0.21097782, z: 0.06389892, w: 0.9335231}
-  m_LocalPosition: {x: 0.3, y: 0.67, z: 5}
+  m_LocalRotation: {x: -0.29918554, y: 0.15080374, z: -0.04665863, w: 0.94104683}
+  m_LocalPosition: {x: 0.343, y: 0.612, z: 4.513}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: -33.7, y: 25.47, z: 0}
+  m_LocalEulerAnglesHint: {x: -33.3, y: 21.9, z: -12.3}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -400,7 +400,7 @@ Projector:
   m_NearClipPlane: 0.1
   m_FarClipPlane: 100
   m_FieldOfView: 60
-  m_AspectRatio: 1
+  m_AspectRatio: 1.3331409
   m_Orthographic: 0
   m_OrthographicSize: 10
   m_Material: {fileID: 2100000, guid: cfecabe691ef3cd4bb4fb92b6fea8d6d, type: 2}
