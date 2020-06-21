@@ -2,17 +2,13 @@
 using System.IO;
 using UnityEngine;
 
-public class ObjLoader: MonoBehaviour
+public class ObjLoader
 {
-    private string path;
+    // windows : C:\Users\Comparabus\AppData\LocalLow\Remmel\unityarf3dplanphoto\
+    // Android : Android\data\com.remmel.unityarf3dplanphoto\files\
+    private static string path = UnityEngine.Application.persistentDataPath + "/3dplanphoto_objs.json";
 
-    public void Start() {
-        // windows : C:\Users\Comparabus\AppData\LocalLow\Remmel\unityarf3dplanphoto\
-        // Android : Android\data\com.remmel.unityarf3dplanphoto\files\
-        path = UnityEngine.Application.persistentDataPath + "/3dplanphoto_objs.json";
-    }
-
-    public Objs GenerateDumb() {
+    public static Objs GenerateDumb() {
 
         List<Obj> list = new List<Obj>();
 
@@ -23,24 +19,30 @@ public class ObjLoader: MonoBehaviour
         return objs2;
     }
 
-    public void Write(Objs objs) {
+    public static void Write(Objs objs) {
         using (StreamWriter stream = new StreamWriter(path)) {
             stream.Write(JsonUtility.ToJson(objs, true));
         }
     }
 
-    public Objs Read() {
+    public static Objs Read() {
         using (StreamReader stream = new StreamReader(path)) {
             return JsonUtility.FromJson<Objs>(stream.ReadToEnd());
         }
     }
 
-    public static Objs GameObjectsToObjs(List<GameObject> gobjs) {
+    public static Objs GameObjectsToObjs(List<GameObject> walls, List<GameObject> photos) {
         Objs objs = new Objs();
-        foreach (GameObject o in gobjs) {
-            Obj obj = new Obj() { name = o.name, position = o.transform.position, rotation = o.transform.rotation };
+        foreach (GameObject o in walls) {
+            Obj obj = new Obj() { name = o.name, position = o.transform.position, rotation = o.transform.rotation, type=Obj.TYPE_WALL }; //todo add ro
             objs.list.Add(obj);
         }
+
+        foreach (GameObject o in photos) {
+            Obj obj = new Obj() { name = o.name, position = o.transform.position, rotation = o.transform.rotation, type = Obj.TYPE_PHOTO };
+            objs.list.Add(obj);
+        }
+
         return objs;
     }
 }

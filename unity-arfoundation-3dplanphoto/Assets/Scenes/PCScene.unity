@@ -261,7 +261,6 @@ GameObject:
   m_Component:
   - component: {fileID: 56669801}
   - component: {fileID: 56669800}
-  - component: {fileID: 56669802}
   m_Layer: 0
   m_Name: Script
   m_TagString: Untagged
@@ -281,14 +280,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0c96208e6f221c4d92012908bc18db7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToSpawn: {fileID: 9029304817219245080, guid: 0f379b03859c6804f8e640fc17211396,
+  wallToSpawn: {fileID: 9029304817219245080, guid: 0f379b03859c6804f8e640fc17211396,
     type: 3}
   arCamera: {fileID: 0}
   placementIndicator: {fileID: 0}
-  spawnedObjs:
-  - {fileID: 138436506}
-  - {fileID: 78910974}
-  - {fileID: 2139533324}
+  spawnedWalls: []
+  spawnedPhotos: []
   spawnedParent: {fileID: 1949128792}
   spherePrefab: {fileID: 4102208713350425073, guid: 8632aeb95f867bd49b5dea95a35847f2,
     type: 3}
@@ -311,18 +308,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &56669802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 56669799}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47bc69509f58d4544898207cda368c73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &76999819
 GameObject:
   m_ObjectHideFlags: 0
@@ -4017,7 +4002,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1949128793
 Transform:
   m_ObjectHideFlags: 0

@@ -7,21 +7,25 @@ using ToastPlugin;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+//TODO check if all pictures saved in json files, later load them, later display frame 
+
 public class SpawnAndPhoto : MonoBehaviour
 {
-    public GameObject objectToSpawn;
+    public GameObject wallToSpawn;
     public GameObject arCamera;
     public PlacementIndicatorS placementIndicator;
 
-    public List<GameObject> spawnedObjs = new List<GameObject>(); //current room spawned objs
+    public List<GameObject> spawnedWalls = new List<GameObject>(); //current room spawned objs
+    public List<GameObject> spawnedPhotos = new List<GameObject>();
 
-    public List<List<GameObject>> spawnedObjsByRoom = new List<List<GameObject>>(); //spawned of all rooms
-    public GameObject spawnedParent;
+    public List<List<GameObject>> spawnedWallsByRoom = new List<List<GameObject>>(); //spawned of all rooms
+    public GameObject spawnedParent; //used to load dumb rooms
 
-    public GameObject spherePrefab;
+    public GameObject spherePrefab; //to display corners
     public GameObject linePrefab;
 
-    public Dropdown dropdown;
+    public Dropdown dropdown; //menu
     public int currentRoom = 1;
 
     public Material mat;
@@ -37,10 +41,11 @@ public class SpawnAndPhoto : MonoBehaviour
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
-        LoadGameObjectsFromParent();
+        //LoadGameObjectsFromParent();
+
         DrawLinesAndPoints();
 
-        Debug.Log(spawnedObjs);
+        Debug.Log(spawnedWalls);
 
         //DrawOneLine2(new Vector3(0f, 0f, 1f), new Vector3(2f, 2f, 2f));
     }
@@ -61,32 +66,29 @@ public class SpawnAndPhoto : MonoBehaviour
                     roomSpawned.Add(wall);
                 }
 
-                spawnedObjsByRoom.Add(roomSpawned);
+                spawnedWallsByRoom.Add(roomSpawned);
             }
 
-            spawnedObjs = spawnedObjsByRoom[0];
+            spawnedWalls = spawnedWallsByRoom[0];
         }
     }
 
     public void SpawnAndTake() {
 
         // Create object
-        GameObject obj = Instantiate(objectToSpawn, placementIndicator.transform.position, placementIndicator.transform.rotation);
+        GameObject obj = Instantiate(wallToSpawn, placementIndicator.transform.position, placementIndicator.transform.rotation);
         Debug.Log("Spawn&Take"); //adb logcat -s Unity PackageManager dalvikvm DEBUG //adb logcat -v time -s Unity
 
-        string timeStamp = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-
-        takeSnapshot(timeStamp);
-        savePosition(timeStamp);
+        String fn = takeSnapshot();
     }
 
-    public void Spawn() {
-        GameObject obj = Instantiate(objectToSpawn, placementIndicator.transform.position, placementIndicator.transform.rotation);
-        spawnedObjs.Add(obj);
+    public void Wall() {
+        GameObject wall = Instantiate(wallToSpawn, placementIndicator.transform.position, placementIndicator.transform.rotation);
+        spawnedWalls.Add(wall);
         Debug.Log("Spawn");
-        Debug.Log("cube: " + JsonUtility.ToJson(obj.transform.position));
+        Debug.Log("cube: " + JsonUtility.ToJson(wall.transform.position));
         Debug.Log("camera: " + JsonUtility.ToJson(arCamera.transform.position));
-        WriteSpawned();
+        Save();
 
         //DrawPointLast();
         //DrawLineLast();
@@ -95,52 +97,52 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     public void Photo() {
-        string timeStamp = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-        takeSnapshot(timeStamp);
-        savePosition(timeStamp);
+        String fn = takeSnapshot();
+
+        GameObject go = new GameObject(fn);
+        go.transform.SetPositionAndRotation(arCamera.transform.position, arCamera.transform.rotation);
+        spawnedPhotos.Add(go);
+        Save();
     }
 
-    void takeSnapshot(string timeStamp) {
+    String takeSnapshot() {
         Texture2D snap = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
         snap.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
         snap.Apply();
 
-        
-        string pathSnap = Application.persistentDataPath + "/" + timeStamp + "_screenshot_sdp.jpg";
+        string fn = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "_screenshot.jpg";
+
+        string pathSnap = Application.persistentDataPath + "/" + fn;
         System.IO.File.WriteAllBytes(pathSnap, snap.EncodeToJPG());
         Debug.Log("Screenshot saved in " + pathSnap);
         ToastHelper.ShowToast("Screenshot saved in " + pathSnap);
+        return fn;
     }
 
-    void savePosition(string timeStamp) {
-        Debug.Log("placement pos: " + JsonUtility.ToJson(placementIndicator.transform.position));
-        Debug.Log("placement rot: " + JsonUtility.ToJson(placementIndicator.transform.rotation));
-        Debug.Log("camera: " + JsonUtility.ToJson(arCamera.transform.position));
-
-        string pathInfo = Application.persistentDataPath + "/" + timeStamp + "_info.txt";
-
-        StreamWriter writer = new StreamWriter(pathInfo, true);
-        writer.WriteLine("placement pos: " + JsonUtility.ToJson(placementIndicator.transform.position));
-        writer.WriteLine("placement rot: " + JsonUtility.ToJson(placementIndicator.transform.rotation));
-        writer.WriteLine("camera: " + JsonUtility.ToJson(arCamera.transform.position));
-        writer.Close();
+    [ContextMenu("Save")]
+    private void Save() {
+        ObjLoader.Write(ObjLoader.GameObjectsToObjs(spawnedWalls, spawnedPhotos));
     }
 
-    [ContextMenu("Write")]
-    private void WriteSpawned() {
-        ObjLoader loader = FindObjectOfType<ObjLoader>();
-        loader.Write(ObjLoader.GameObjectsToObjs(spawnedObjs));
-    }
-
-    [ContextMenu("Read")]
-    private void ReadSpawned() {
-        ObjLoader loader = FindObjectOfType<ObjLoader>();
-        Objs objs = loader.Read();
+    [ContextMenu("Load")]
+    private void Load() {
+        Objs objs = ObjLoader.Read();
 
         foreach(Obj obj in objs.list) {
-            GameObject go = Instantiate(objectToSpawn, obj.position, obj.rotation);
-            go.name = obj.name;
-            spawnedObjs.Add(go);
+            switch(obj.type) {
+                case Obj.TYPE_WALL:
+                case "Plane":
+                    GameObject go = Instantiate(wallToSpawn, obj.position, obj.rotation);
+                    go.name = obj.name;
+                    spawnedWalls.Add(go);
+                    break;
+
+                case Obj.TYPE_PHOTO:
+                    break;
+            }
+
+            
+            
         }
     }
 
@@ -195,13 +197,13 @@ public class SpawnAndPhoto : MonoBehaviour
 
     private void DrawPointAll() {
         //Draw points with "axis"
-        if(spawnedObjs.Count >= 3) {
-            for (int i = 0; i < spawnedObjs.Count - 2; i++) {
-                for (int j = i + 1; j < spawnedObjs.Count - 1; j++) {
-                    for (int k = j + 1; k < spawnedObjs.Count; k++) {
-                        GameObject p0 = spawnedObjs[i];
-                        GameObject p1 = spawnedObjs[j];
-                        GameObject p2 = spawnedObjs[k];
+        if(spawnedWalls.Count >= 3) {
+            for (int i = 0; i < spawnedWalls.Count - 2; i++) {
+                for (int j = i + 1; j < spawnedWalls.Count - 1; j++) {
+                    for (int k = j + 1; k < spawnedWalls.Count; k++) {
+                        GameObject p0 = spawnedWalls[i];
+                        GameObject p1 = spawnedWalls[j];
+                        GameObject p2 = spawnedWalls[k];
                         Debug.Log(p0.name + " - " + p1.name + " - " + p2.name + " - i=" + i + " j=" + j + " k="+k);
                         DrawOnePoint(p0, p1, p2);
                     }
@@ -230,12 +232,12 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     private void DrawPointLast() {
-        if (spawnedObjs.Count >= 3) {
-            GameObject spawnedA = spawnedObjs[spawnedObjs.Count - 1]; //new item added
+        if (spawnedWalls.Count >= 3) {
+            GameObject spawnedA = spawnedWalls[spawnedWalls.Count - 1]; //new item added
 
-            for (int i = 0; i < spawnedObjs.Count - 2; i++) {
-                for (int j = i + 1; j < spawnedObjs.Count - 1; j++) {
-                    DrawOnePoint(spawnedA, spawnedObjs[i], spawnedObjs[j]);
+            for (int i = 0; i < spawnedWalls.Count - 2; i++) {
+                for (int j = i + 1; j < spawnedWalls.Count - 1; j++) {
+                    DrawOnePoint(spawnedA, spawnedWalls[i], spawnedWalls[j]);
                 }
             }
         }
@@ -261,11 +263,11 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     private void DrawLineAll() {
-        if (spawnedObjs.Count >= 2) {
-            for (int i = 0; i < spawnedObjs.Count - 1; i++) {
-                for (int j = i + 1; j < spawnedObjs.Count; j++) {
-                    GameObject spawnedA = spawnedObjs[i];
-                    GameObject spawnedB = spawnedObjs[j];
+        if (spawnedWalls.Count >= 2) {
+            for (int i = 0; i < spawnedWalls.Count - 1; i++) {
+                for (int j = i + 1; j < spawnedWalls.Count; j++) {
+                    GameObject spawnedA = spawnedWalls[i];
+                    GameObject spawnedB = spawnedWalls[j];
                     Debug.Log(spawnedA.name + " - " + spawnedB.name + " - i=" + i + " j=" + j);
                     DrawOneLine(spawnedA, spawnedB);
                 }
@@ -274,10 +276,10 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     private void DrawLineLast() {
-        if (spawnedObjs.Count >= 2) {
-            GameObject spawnedA = spawnedObjs[spawnedObjs.Count - 1]; //new item added
-            for (int i = 0; i < spawnedObjs.Count - 1; i++) {
-                DrawOneLine(spawnedA, spawnedObjs[i]);
+        if (spawnedWalls.Count >= 2) {
+            GameObject spawnedA = spawnedWalls[spawnedWalls.Count - 1]; //new item added
+            for (int i = 0; i < spawnedWalls.Count - 1; i++) {
+                DrawOneLine(spawnedA, spawnedWalls[i]);
             }
         }
     }
@@ -413,8 +415,8 @@ public class SpawnAndPhoto : MonoBehaviour
 
                     print(go.name);
 
-                    spawnedObjs.Remove(go);
-                    spawnedObjsByRoom.ForEach(objs => objs.Remove(go));
+                    spawnedWalls.Remove(go);
+                    spawnedWallsByRoom.ForEach(objs => objs.Remove(go));
                     Destroy(go);
 
                     DestroyAndDrawAllPointsAndLines();

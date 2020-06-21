@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Photo : MonoBehaviour
+public class DebugProjector : MonoBehaviour
 {
-    public GameObject photo;
+    public GameObject photo; //where to display the photo
     public GameObject spherePrefab;
     public GameObject cube; //object I want to project
 

@@ -961,7 +961,6 @@ GameObject:
   m_Component:
   - component: {fileID: 885157068}
   - component: {fileID: 885157067}
-  - component: {fileID: 885157069}
   m_Layer: 0
   m_Name: Script
   m_TagString: Untagged
@@ -981,11 +980,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0c96208e6f221c4d92012908bc18db7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToSpawn: {fileID: 9029304817219245080, guid: 0f379b03859c6804f8e640fc17211396,
+  wallToSpawn: {fileID: 9029304817219245080, guid: 0f379b03859c6804f8e640fc17211396,
     type: 3}
   arCamera: {fileID: 1871327605}
   placementIndicator: {fileID: 44579828}
-  spawnedObjs: []
+  spawnedWalls: []
+  spawnedPhotos: []
   spawnedParent: {fileID: 0}
   spherePrefab: {fileID: 4102208713350425073, guid: 8632aeb95f867bd49b5dea95a35847f2,
     type: 3}
@@ -1008,18 +1008,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &885157069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 885157066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47bc69509f58d4544898207cda368c73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &910636088
 GameObject:
   m_ObjectHideFlags: 0
@@ -1291,7 +1279,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Spawn
+  m_Text: Wall
 --- !u!222 &953859439
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1318,7 +1306,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &981975748
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2191,7 +2179,7 @@ GameObject:
   - component: {fileID: 1738205316}
   - component: {fileID: 1738205315}
   m_Layer: 5
-  m_Name: ButtonSpawn
+  m_Name: ButtonWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2261,7 +2249,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 885157067}
-        m_MethodName: Spawn
+        m_MethodName: Wall
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
