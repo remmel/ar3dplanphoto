@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
 using ToastPlugin;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 
@@ -20,7 +18,7 @@ public class SpawnAndPhoto : MonoBehaviour
     public List<GameObject> spawnedPhotos = new List<GameObject>();
 
     public List<List<GameObject>> spawnedWallsByRoom = new List<List<GameObject>>(); //spawned of all rooms
-    public GameObject spawnedParent; //used to load dumb rooms
+    public GameObject spawnedParentDebug; //used to load dumb rooms
 
     public GameObject spherePrefab; //to display corners
     public GameObject linePrefab;
@@ -28,11 +26,15 @@ public class SpawnAndPhoto : MonoBehaviour
     public Dropdown dropdown; //menu
     public int currentRoom = 1;
 
+    public bool load = false;
+
     public Material mat;
 
-    //save points and lines drawn to easily destory them
-    private List<GameObject> pointsAndLines = new List<GameObject>(); 
-    //private List<Point3GameObjects> pointsWithGameobjets = new List<Point3GameObjects>();
+    public GameObject planeFrame;
+    public GameObject projector;
+
+    //save points/lines/Quads drawn to easily destory them
+    private List<GameObject> ui3dGOs = new List<GameObject>(); 
 
     Dictionary<GameObject, List<Vector3>> wallPointsList = new Dictionary<GameObject, List<Vector3>>();
 
@@ -43,19 +45,18 @@ public class SpawnAndPhoto : MonoBehaviour
 
         //LoadGameObjectsFromParent();
 
-        DrawLinesAndPoints();
+        if(load)
+            Load();
 
-        Debug.Log(spawnedWalls);
-
-        //DrawOneLine2(new Vector3(0f, 0f, 1f), new Vector3(2f, 2f, 2f));
+        DestroyAndDrawUI3D();
     }
 
     protected void LoadGameObjectsFromParent() {
-        if (spawnedParent && spawnedParent.transform.childCount > 0) {
+        if (spawnedParentDebug && spawnedParentDebug.transform.childCount > 0) {
             Debug.Log("Load Dumb Rooms");
-            for (int i = 0; i < spawnedParent.transform.childCount; i++) {
+            for (int i = 0; i < spawnedParentDebug.transform.childCount; i++) {
                 List<GameObject> roomSpawned = new List<GameObject>();
-                GameObject room = spawnedParent.transform.GetChild(i).gameObject;
+                GameObject room = spawnedParentDebug.transform.GetChild(i).gameObject;
                 Debug.Log("room" + room.name + ":" + room.transform.childCount);
 
                 dropdown.options.Insert(dropdown.options.Count - 1, new Dropdown.OptionData() { text = "b " + room.name });
@@ -93,19 +94,24 @@ public class SpawnAndPhoto : MonoBehaviour
         //DrawPointLast();
         //DrawLineLast();
 
-        DestroyAndDrawAllPointsAndLines();
+        DestroyAndDrawUI3D();
     }
 
     public void Photo() {
         String fn = takeSnapshot();
 
+        // Create photo without UI
         GameObject go = new GameObject(fn);
         go.transform.SetPositionAndRotation(arCamera.transform.position, arCamera.transform.rotation);
+
+        //arCamera.GetComponent<Camera>().fieldOfView
         spawnedPhotos.Add(go);
         Save();
+
+        DestroyAndDrawUI3D();
     }
 
-    String takeSnapshot() {
+    private String takeSnapshot() {
         Texture2D snap = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
         snap.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
         snap.Apply();
@@ -137,23 +143,16 @@ public class SpawnAndPhoto : MonoBehaviour
                     spawnedWalls.Add(go);
                     break;
 
-                case Obj.TYPE_PHOTO:
+                case Obj.TYPE_PHOTO: //photo without UI
+                    GameObject go2 = new GameObject(obj.name);
+                    go2.transform.SetPositionAndRotation(obj.position, obj.rotation);
+                    spawnedPhotos.Add(go2);
+                    //go2.SetActive(false);
                     break;
             }
-
-            
-            
         }
     }
 
-    [ContextMenu("DrawLinesAndPoints")]
-    private void DrawLinesAndPoints() {
-        DrawPointAll();
-        //DrawLineAll();
-        //DrawPointLast();
-
-        // TODO draw better room
-    }
 
     private void DrawOnePoint(GameObject p0, GameObject p1, GameObject p2) {
         Vector3 point;
@@ -195,7 +194,8 @@ public class SpawnAndPhoto : MonoBehaviour
         return product > 0 ? dir : -1 * dir;
     }
 
-    private void DrawPointAll() {
+    [ContextMenu("DrawUI3D")]
+    private void DrawUI3D() {
         //Draw points with "axis"
         if(spawnedWalls.Count >= 3) {
             for (int i = 0; i < spawnedWalls.Count - 2; i++) {
@@ -229,21 +229,65 @@ public class SpawnAndPhoto : MonoBehaviour
             }
         }
 
-    }
-
-    private void DrawPointLast() {
-        if (spawnedWalls.Count >= 3) {
-            GameObject spawnedA = spawnedWalls[spawnedWalls.Count - 1]; //new item added
-
-            for (int i = 0; i < spawnedWalls.Count - 2; i++) {
-                for (int j = i + 1; j < spawnedWalls.Count - 1; j++) {
-                    DrawOnePoint(spawnedA, spawnedWalls[i], spawnedWalls[j]);
-                }
-            }
+        //Draw photo frame
+        foreach(GameObject go in spawnedPhotos) {
+            DrawProjector(go.name, go.transform.position, go.transform.rotation);
         }
+
     }
 
-    private void DrawOneLine(GameObject spawnedA, GameObject spawnedB) {
+    private void DrawPhotoPlane(string fn, Vector3 position, Quaternion rotation) {
+        GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        plane.transform.SetPositionAndRotation(position, rotation);
+        plane.transform.Rotate(90, 0, 180);
+        plane.transform.localScale *= 0.1f;
+
+        var e = Resources.Load(UnityEngine.Application.persistentDataPath + "/" + fn);
+
+        Texture t = Resources.Load(UnityEngine.Application.persistentDataPath+"/"+fn) as Texture;
+
+        plane.GetComponent<Renderer>().material.SetTexture("df", t);
+
+        ui3dGOs.Add(plane);
+    }
+
+    private GameObject DrawProjector(string fn, Vector3 position, Quaternion rotation) {
+        GameObject o = Instantiate(projector, position, rotation);
+        o.GetComponent<DrawProjector>().fn = fn;
+        ui3dGOs.Add(o);
+        return o;
+    }
+
+    private GameObject DrawPhotoPlanePrefab(string fn, Vector3 position, Quaternion rotation) {
+        GameObject o = Instantiate(planeFrame, position, rotation);
+        o.transform.Rotate(90, 0, 180);
+        ui3dGOs.Add(o);
+
+
+        String path = UnityEngine.Application.persistentDataPath + "/" + fn;
+
+        if (!System.IO.File.Exists(path)) {
+            ToastHelper.ShowToast("Screenshot not found");
+            return null;
+        }
+
+        byte[] fileData = System.IO.File.ReadAllBytes(path);
+        Texture2D tex = new Texture2D(1,1);
+        tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
+        o.GetComponent<Renderer>().material.mainTexture = tex;
+
+        // because phone in landscrape, width is always bigger
+        float ratio = tex.width / (float)tex.height;
+
+        Vector3 scale = o.transform.localScale;
+        scale.x = scale.z * ratio;
+
+        o.transform.localScale = scale;
+
+        return o;
+    }
+
+        private void DrawOneLine(GameObject spawnedA, GameObject spawnedB) {
         Vector3 point = Vector3.zero;
         Vector3 direction = Vector3.zero;
         bool success = Math3DUtils.planePlaneIntersection(out point, out direction, spawnedA, spawnedB);
@@ -259,7 +303,7 @@ public class SpawnAndPhoto : MonoBehaviour
         LineRenderer lr = go.AddComponent<LineRenderer>();
         lr.SetWidth(0.05f, 0.05f);
         lr.SetPositions(new[] { from, to });
-        pointsAndLines.Add(go);
+        ui3dGOs.Add(go);
     }
 
     private void DrawLineAll() {
@@ -287,7 +331,7 @@ public class SpawnAndPhoto : MonoBehaviour
     GameObject InstSphere(Vector3 vector3, Color color) {
         GameObject o = Instantiate(spherePrefab, vector3, Quaternion.identity);
         o.GetComponent<Renderer>().material.color = color;
-        pointsAndLines.Add(o);
+        ui3dGOs.Add(o);
         return o;
     }
 
@@ -296,7 +340,7 @@ public class SpawnAndPhoto : MonoBehaviour
         o.GetComponent<Renderer>().material.color = color;
         o.transform.Rotate(90, 0, 0);
         //o.transform.position = o.transform.position + new Vector3(0, 1f, 0);
-        pointsAndLines.Add(o);
+        ui3dGOs.Add(o);
         return o;
     }
 
@@ -314,7 +358,7 @@ public class SpawnAndPhoto : MonoBehaviour
         go.name = "Quad";
         MeshRenderer mr = go.AddComponent<MeshRenderer>();
         //mr.sharedMaterial = new Material(Shader.Find("Standard"));
-        mr.material = mat;
+        //mr.material = mat; //mat circles
         //mr.material.mainTexture.wrapMode = TextureWrapMode.Repeat;
         mr.material.mainTextureScale = new Vector2(Vector3.Distance(vertices[0], vertices[1]), Vector3.Distance(vertices[1], vertices[2]));
 
@@ -335,7 +379,7 @@ public class SpawnAndPhoto : MonoBehaviour
             // upper right triangle
             2, 3, 1,
 
-            //doble sides
+            //double sides
             3, 2, 1,
             2, 0, 1
         };
@@ -366,6 +410,8 @@ public class SpawnAndPhoto : MonoBehaviour
         //mesh.RecalculateBounds();
         //mesh.RecalculateNormals();
 
+        ui3dGOs.Add(go);
+
         return go;
     }
 
@@ -375,18 +421,18 @@ public class SpawnAndPhoto : MonoBehaviour
         Debug.DrawLine(linePointa, linePointb, color, duration);
     }
 
-    [ContextMenu("Destroy")]
-    void DestroyAllDrawnPointsAndLines() {
-        foreach(GameObject o in pointsAndLines) {
+    [ContextMenu("DestroyUI3D")]
+    void DestroyUI3D() {
+        foreach(GameObject o in ui3dGOs) {
             Destroy(o);
         }
-        pointsAndLines.Clear();
+        ui3dGOs.Clear();
         wallPointsList.Clear();
     }
 
-    void DestroyAndDrawAllPointsAndLines() {
-        DestroyAllDrawnPointsAndLines();
-        DrawPointAll();
+    void DestroyAndDrawUI3D() {
+        DestroyUI3D();
+        DrawUI3D();
     }
 
     public void OnDropDownChange(int val) {
@@ -401,11 +447,11 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     public void Update() {
-        UpdateDestroy();
+        UpdateClickToRemove();
     }
 
-    private void UpdateDestroy() {
-        if (Input.GetMouseButtonDown(0)) {
+    private void UpdateClickToRemove() {
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) { //TODO handle when clicking on button (should not remove any objects)
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -417,9 +463,9 @@ public class SpawnAndPhoto : MonoBehaviour
 
                     spawnedWalls.Remove(go);
                     spawnedWallsByRoom.ForEach(objs => objs.Remove(go));
-                    Destroy(go);
+                    Destroy(go); //should destroy only if wall
 
-                    DestroyAndDrawAllPointsAndLines();
+                    DestroyAndDrawUI3D();
                 }
             }
         }

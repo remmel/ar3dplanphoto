@@ -71,4 +71,16 @@ public class Math3DUtils
         }
         throw new Exception("no normal found");
     }
+
+    /**
+     * Useless code, is this is done automatically by transform.forward, but here to understand the calculation
+     * angles = transform.rotation.eulerAngles
+     */
+    public static Vector3 forward(Vector3 angles) {
+        Vector3 forward = Vector3.zero;
+        forward.x = Mathf.Sin(angles.y * Mathf.Deg2Rad) * Mathf.Cos(angles.x * Mathf.Deg2Rad);
+        forward.y = Mathf.Sin(-angles.x * Mathf.Deg2Rad);
+        forward.z = Mathf.Cos(angles.y * Mathf.Deg2Rad) * Mathf.Cos(angles.x * Mathf.Deg2Rad);
+        return forward;
+    }
 }

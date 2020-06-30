@@ -7,7 +7,9 @@ There are multiple possilities/framework to do that:
 
 # unity-arfoundation-3dplanphoto
 Try doing that using Unity Ar Fondation framework
-Can currently put 6 markers on 6 room faces and generate the corners and 6 quads with dumb texture. Can remove marker when clicking into it.
+Can currently put 6 markers on 6 room faces and generate the corners and 6 quads with dumb texture.
+Take picture and place a representation of the picture/projector in the 3D world.
+Can remove marker when clicking into it.
 
 Unity/Scenes :
 - ARScene : main application
@@ -26,13 +28,6 @@ Todo:
 
 Problem:
 - Unity/ARScene : drift problem, locations of markers changes
-
-
-1. Clic=Add cube + Take picture + 1 one face texture (flat)
-or
-
-2.1 Clic = Add cube
-2.2 Clic = Take picture + 1 texture (not flat)
 
 
 https://www.youtube.com/watch?v=FGL6SffDeVU

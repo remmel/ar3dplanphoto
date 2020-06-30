@@ -286,14 +286,19 @@ MonoBehaviour:
   placementIndicator: {fileID: 0}
   spawnedWalls: []
   spawnedPhotos: []
-  spawnedParent: {fileID: 1949128792}
+  spawnedParentDebug: {fileID: 0}
   spherePrefab: {fileID: 4102208713350425073, guid: 8632aeb95f867bd49b5dea95a35847f2,
     type: 3}
   linePrefab: {fileID: 2794556471782568434, guid: 68ab6c404b39e2541ad7d6e0db706b41,
     type: 3}
   dropdown: {fileID: 1388440124}
   currentRoom: 1
+  load: 1
   mat: {fileID: 2100000, guid: fdff2a65b0db685469dc7ae4412b7a7e, type: 2}
+  planeFrame: {fileID: 8529736433188202527, guid: 5e84b02d4970f364690eff824bb64d6d,
+    type: 3}
+  projector: {fileID: 6125753862893372832, guid: 6fc181a4d186de546b954c1d44bfff9e,
+    type: 3}
 --- !u!4 &56669801
 Transform:
   m_ObjectHideFlags: 0
@@ -1576,7 +1581,7 @@ GameObject:
   m_Component:
   - component: {fileID: 614250559}
   m_Layer: 0
-  m_Name: Try1
+  m_Name: ParentDebug1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3997,7 +4002,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1949128793}
   m_Layer: 0
-  m_Name: Try2
+  m_Name: ParentDebug2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
