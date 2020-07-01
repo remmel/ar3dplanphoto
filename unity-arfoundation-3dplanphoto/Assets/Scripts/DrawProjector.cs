@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using ToastPlugin;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,23 +13,34 @@ public class DrawProjector : MonoBehaviour
     private int w;
     private int h;
     int vfov = 60;
-    float far = 0.25f; //how far should we place the projector for the projected plane
+    float far = 1f; //how far should we place the projector for the projected plane
 
     public string fn = null;
-    //public string fn = "2020-06-24-19-24-15_screenshot.jpg";
-
-    bool debug = false;
 
     // Draw frame and put it 1m far from camera
     void Start() {
-        //load texture
+        this.name = "Projector " + fn;
 
-        if(!String.IsNullOrEmpty(fn)) { //otherwise display already loaded texture projectcube.jpg
+        //load texture
+        if (!String.IsNullOrEmpty(fn)) { //otherwise display already loaded texture projectcube.jpg
             string path = UnityEngine.Application.persistentDataPath + "/" + fn;
+            
+            if (!System.IO.File.Exists(path)) {
+                Debug.LogError("file not found: " + path);
+            }
             byte[] fileData = System.IO.File.ReadAllBytes(path);
             Texture2D tex = new Texture2D(1, 1);
             tex.LoadImage(fileData); //load also width/height
             plane.GetComponent<Renderer>().material.mainTexture = tex;
+
+            //project texture
+            this.GetComponent<Projector>().material = new Material(Shader.Find("Projector/Multiply"));
+            Material thisProjectorMat = this.GetComponent<Projector>().material;
+            thisProjectorMat.SetTexture("_ShadowTex", tex);
+            thisProjectorMat.SetTexture("_FalloffTex", tex);
+            this.GetComponent<Projector>().material = thisProjectorMat;
+
+
             w = tex.width;
             h = tex.height;
         } else {
@@ -37,6 +49,7 @@ public class DrawProjector : MonoBehaviour
         }
         
         Debug.Log("w:" + w + " h:" + h);
+        this.GetComponent<Projector>().aspectRatio = (float)w / h;
 
 
         float hfov = getHorizontalFov();

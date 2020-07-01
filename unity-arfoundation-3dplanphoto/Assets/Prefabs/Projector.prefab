@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4373385643653643892}
   - component: {fileID: 5045080654577899381}
   - component: {fileID: 2328870621831295517}
-  - component: {fileID: 401243974864362172}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -28,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 3834003615536140461}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_Children: []
   m_Father: {fileID: 6125753862893372837}
   m_RootOrder: 1
@@ -80,19 +79,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!65 &401243974864362172
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3834003615536140461}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6125753862519215221
 GameObject:
   m_ObjectHideFlags: 0
@@ -186,7 +172,7 @@ GameObject:
   - component: {fileID: -1279779917855197313}
   m_Layer: 0
   m_Name: Projector
-  m_TagString: MainCamera
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -265,7 +251,7 @@ Projector:
   m_AspectRatio: 1.3331409
   m_Orthographic: 0
   m_OrthographicSize: 10
-  m_Material: {fileID: 2100000, guid: cfecabe691ef3cd4bb4fb92b6fea8d6d, type: 2}
+  m_Material: {fileID: 2100000, guid: 7b9296b92132ef04bb633f2c9366740c, type: 2}
   m_IgnoreLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -285,3 +271,4 @@ MonoBehaviour:
   spherePrefab: {fileID: 3787955766548240946, guid: ef17ce9592f5ff34e98247759dfed366,
     type: 3}
   fn: 
+  projectorMat: {fileID: 0}

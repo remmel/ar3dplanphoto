@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ToastPlugin;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -23,14 +24,16 @@ public class SpawnAndPhoto : MonoBehaviour
     public GameObject spherePrefab; //to display corners
     public GameObject linePrefab;
 
-    public Dropdown dropdown; //menu
+    public Dropdown dropdownRoom; //menu rooms
+    public Dropdown dropdownCamera; //menu cameras
+    Dictionary<string, GameObject> dropdownCameraValues = new Dictionary<string, GameObject>();
+
     public int currentRoom = 1;
 
     public bool load = false;
 
-    public Material mat;
+    public Material matWall;
 
-    public GameObject planeFrame;
     public GameObject projector;
 
     //save points/lines/Quads drawn to easily destory them
@@ -48,7 +51,7 @@ public class SpawnAndPhoto : MonoBehaviour
         if(load)
             Load();
 
-        DestroyAndDrawUI3D();
+        ReDrawUI3D();
     }
 
     protected void LoadGameObjectsFromParent() {
@@ -59,7 +62,7 @@ public class SpawnAndPhoto : MonoBehaviour
                 GameObject room = spawnedParentDebug.transform.GetChild(i).gameObject;
                 Debug.Log("room" + room.name + ":" + room.transform.childCount);
 
-                dropdown.options.Insert(dropdown.options.Count - 1, new Dropdown.OptionData() { text = "b " + room.name });
+                dropdownRoom.options.Insert(dropdownRoom.options.Count - 1, new Dropdown.OptionData() { text = "b " + room.name });
 
                 //spawnedParent.gameObject.Get
                 for (int j = 0; j < room.transform.childCount; j++) {
@@ -94,7 +97,7 @@ public class SpawnAndPhoto : MonoBehaviour
         //DrawPointLast();
         //DrawLineLast();
 
-        DestroyAndDrawUI3D();
+        ReDrawUI3D();
     }
 
     public void Photo() {
@@ -108,7 +111,7 @@ public class SpawnAndPhoto : MonoBehaviour
         spawnedPhotos.Add(go);
         Save();
 
-        DestroyAndDrawUI3D();
+        ReDrawUI3D();
     }
 
     private String takeSnapshot() {
@@ -195,9 +198,11 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     [ContextMenu("DrawUI3D")]
-    private void DrawUI3D() {
+    private void ReDrawUI3D() {
+        DestroyUI3D();
+
         //Draw points with "axis"
-        if(spawnedWalls.Count >= 3) {
+        if (spawnedWalls.Count >= 3) {
             for (int i = 0; i < spawnedWalls.Count - 2; i++) {
                 for (int j = i + 1; j < spawnedWalls.Count - 1; j++) {
                     for (int k = j + 1; k < spawnedWalls.Count; k++) {
@@ -229,11 +234,33 @@ public class SpawnAndPhoto : MonoBehaviour
             }
         }
 
-        //Draw photo frame
-        foreach(GameObject go in spawnedPhotos) {
-            DrawProjector(go.name, go.transform.position, go.transform.rotation);
+        //Draw photo frame and add them to dropdown
+        foreach (GameObject go in spawnedPhotos) {
+            GameObject projector = DrawProjector(go.name, go.transform.position, go.transform.rotation);
+            dropdownCameraValues.Add(go.name.Substring(14), projector);
         }
 
+        dropdownCamera.AddOptions(dropdownCameraValues.Keys.ToList<string>());
+    }
+
+    private void DestroyUI3D() {
+        // Destroy
+        foreach (GameObject o in ui3dGOs) {
+            Destroy(o);
+        }
+        ui3dGOs.Clear();
+        wallPointsList.Clear();
+
+        dropdownCamera.ClearOptions();
+        dropdownCameraValues.Clear();
+    }
+
+    public void DropdownCameraChanged(int position) {
+        GameObject go = dropdownCameraValues.Values.ElementAt<GameObject>(position);
+        Debug.Log("choosed " + go.name);
+
+        Camera.main.transform.position = go.transform.position;
+        Camera.main.transform.rotation = go.transform.rotation;
     }
 
     private void DrawPhotoPlane(string fn, Vector3 position, Quaternion rotation) {
@@ -254,40 +281,12 @@ public class SpawnAndPhoto : MonoBehaviour
     private GameObject DrawProjector(string fn, Vector3 position, Quaternion rotation) {
         GameObject o = Instantiate(projector, position, rotation);
         o.GetComponent<DrawProjector>().fn = fn;
+        o.name = "Projector " + fn;
         ui3dGOs.Add(o);
         return o;
     }
 
-    private GameObject DrawPhotoPlanePrefab(string fn, Vector3 position, Quaternion rotation) {
-        GameObject o = Instantiate(planeFrame, position, rotation);
-        o.transform.Rotate(90, 0, 180);
-        ui3dGOs.Add(o);
-
-
-        String path = UnityEngine.Application.persistentDataPath + "/" + fn;
-
-        if (!System.IO.File.Exists(path)) {
-            ToastHelper.ShowToast("Screenshot not found");
-            return null;
-        }
-
-        byte[] fileData = System.IO.File.ReadAllBytes(path);
-        Texture2D tex = new Texture2D(1,1);
-        tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
-        o.GetComponent<Renderer>().material.mainTexture = tex;
-
-        // because phone in landscrape, width is always bigger
-        float ratio = tex.width / (float)tex.height;
-
-        Vector3 scale = o.transform.localScale;
-        scale.x = scale.z * ratio;
-
-        o.transform.localScale = scale;
-
-        return o;
-    }
-
-        private void DrawOneLine(GameObject spawnedA, GameObject spawnedB) {
+    private void DrawOneLine(GameObject spawnedA, GameObject spawnedB) {
         Vector3 point = Vector3.zero;
         Vector3 direction = Vector3.zero;
         bool success = Math3DUtils.planePlaneIntersection(out point, out direction, spawnedA, spawnedB);
@@ -358,7 +357,7 @@ public class SpawnAndPhoto : MonoBehaviour
         go.name = "Quad";
         MeshRenderer mr = go.AddComponent<MeshRenderer>();
         //mr.sharedMaterial = new Material(Shader.Find("Standard"));
-        //mr.material = mat; //mat circles
+        mr.material = matWall; //mat circles
         //mr.material.mainTexture.wrapMode = TextureWrapMode.Repeat;
         mr.material.mainTextureScale = new Vector2(Vector3.Distance(vertices[0], vertices[1]), Vector3.Distance(vertices[1], vertices[2]));
 
@@ -421,27 +420,13 @@ public class SpawnAndPhoto : MonoBehaviour
         Debug.DrawLine(linePointa, linePointb, color, duration);
     }
 
-    [ContextMenu("DestroyUI3D")]
-    void DestroyUI3D() {
-        foreach(GameObject o in ui3dGOs) {
-            Destroy(o);
-        }
-        ui3dGOs.Clear();
-        wallPointsList.Clear();
-    }
-
-    void DestroyAndDrawUI3D() {
-        DestroyUI3D();
-        DrawUI3D();
-    }
-
     public void OnDropDownChange(int val) {
-        int count = dropdown.options.Count;
+        int count = dropdownRoom.options.Count;
 
         Debug.Log("dropdown: " + val + " nb:"+count);
 
         if(val == count -1) { //dropdown.options[val].text == "New Room"
-            dropdown.options.Insert(count - 1 , new Dropdown.OptionData() { text = "Room " + count });
+            dropdownRoom.options.Insert(count - 1 , new Dropdown.OptionData() { text = "Room " + count });
         }
 
     }
@@ -465,7 +450,7 @@ public class SpawnAndPhoto : MonoBehaviour
                     spawnedWallsByRoom.ForEach(objs => objs.Remove(go));
                     Destroy(go); //should destroy only if wall
 
-                    DestroyAndDrawUI3D();
+                    ReDrawUI3D();
                 }
             }
         }

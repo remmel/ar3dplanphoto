@@ -994,7 +994,7 @@ MonoBehaviour:
   dropdown: {fileID: 1127630671}
   currentRoom: 1
   load: 0
-  mat: {fileID: 2100000, guid: fdff2a65b0db685469dc7ae4412b7a7e, type: 2}
+  mat: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   planeFrame: {fileID: 8529736433188202527, guid: 5e84b02d4970f364690eff824bb64d6d,
     type: 3}
   projector: {fileID: 6125753862893372832, guid: 6fc181a4d186de546b954c1d44bfff9e,
