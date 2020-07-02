@@ -35,3 +35,6 @@ https://www.youtube.com/watch?v=FGL6SffDeVU
 https://docs.unity3d.com/ScriptReference/Camera.ScreenPointToRay.html
 
 https://forum.unity.com/threads/how-to-calculate-the-correct-inverse-view-projection.384656/
+
+
+https://stackoverflow.com/questions/49016071/how-to-take-save-picture-screenshot-using-unity-arcore-sdk

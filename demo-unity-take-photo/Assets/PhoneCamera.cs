@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using ToastPlugin;
 using UnityEngine;
@@ -14,8 +15,8 @@ public class PhoneCamera : MonoBehaviour
     public RawImage background;
     public AspectRatioFitter fit;
 
-
     public Button takePictureBtn;
+    public Dropdown dropdown;
 
     void Start()
     {
@@ -28,49 +29,51 @@ public class PhoneCamera : MonoBehaviour
         }
 
         for(int i=0; i<devices.Length; i++) {
-            if(!devices[i].isFrontFacing) {
-                webCamTexture = new WebCamTexture(devices[i].name, Screen.height, Screen.width);
-            }
+            WebCamDevice device = devices[i];
+
+            String resolutionStr = "";
+            Array.ForEach(device.availableResolutions, r => resolutionStr+= " "+r.width+"x"+r.height);
+
+            dropdown.options.Add(new Dropdown.OptionData() { text = device.name + " f:" + (device.isFrontFacing ? 1 : 0) + resolutionStr + " k:"+ device.kind + " dcm:" +device.depthCameraName});
         }
 
-        if(webCamTexture == null) {
-            Debug.LogError("no back camera found");
-            return;
-        }
-
-        webCamTexture.Play();
-        background.texture = webCamTexture;
-        cameraAvailable = true;
+        ChangeCamera(4);
 
         Button btn = takePictureBtn.GetComponent<Button>();
         btn.onClick.AddListener(TakePicture);
+
+        dropdown.onValueChanged.AddListener(ChangeCamera);
 
         Debug.Log("Initied");
         //adb logcat -s Unity PackageManager dalvikvm DEBUG //adb logcat -v time -s Unity
     }
 
+    void ChangeCamera(int camera) {
+        if(webCamTexture != null)
+            webCamTexture.Stop();
+        WebCamDevice device = WebCamTexture.devices[camera];
+        Resolution res = device.availableResolutions[0];
+        webCamTexture = new WebCamTexture(device.name, res.width, res.height);
+        webCamTexture.Play();
+        background.texture = webCamTexture;
+    }
+
     void Update()
     {
-        if (!cameraAvailable) return;
+        //if (!cameraAvailable) return;
 
-        float ratio = (float)webCamTexture.width / (float)webCamTexture.height;
-        fit.aspectRatio = ratio;
-
-        //float scaleY = webCamTexture.videoVerticallyMirrored ? -1f : 1f;
-        //background.rectTransform.localScale = new Vector3(1f, scaleY, 1f);
-
-        //int orient = -webCamTexture.videoRotationAngle;
-        //background.rectTransform.localEulerAngles = new Vector3(0, 0, orient);
+        //float ratio = (float)webCamTexture.width / (float)webCamTexture.height;
+        //fit.aspectRatio = ratio;
     }
 
     void TakePicture() {
-        Texture2D snap = new Texture2D(webCamTexture.width, webCamTexture.height);
-        snap.SetPixels(webCamTexture.GetPixels());
-        snap.Apply();
-        string timeStamp = System.DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
-        string path = Application.persistentDataPath + "/Screenshot_" + timeStamp +".jpg";
-        System.IO.File.WriteAllBytes(path, snap.EncodeToJPG());
-        Debug.Log("Screenshot saved in "+ path);
-        ToastHelper.ShowToast("Screenshot saved in " + path);
+        Texture2D tex = new Texture2D(webCamTexture.width, webCamTexture.height);
+        tex.SetPixels(webCamTexture.GetPixels());
+        tex.Apply();
+        string timeStamp = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+        string path = Application.persistentDataPath + "/Photo_" + timeStamp +".jpg";
+        System.IO.File.WriteAllBytes(path, tex.EncodeToJPG());
+        Debug.Log("Photo saved in "+ path);
+        ToastHelper.ShowToast("Photo saved in " + path);
     }
 }
