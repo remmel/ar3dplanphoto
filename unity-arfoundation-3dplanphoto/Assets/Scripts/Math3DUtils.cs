@@ -83,4 +83,79 @@ public class Math3DUtils
         forward.z = Mathf.Cos(angles.y * Mathf.Deg2Rad) * Mathf.Cos(angles.x * Mathf.Deg2Rad);
         return forward;
     }
+
+    public static void MeshDivide(GameObject go) {
+        Mesh m = go.GetComponent<MeshFilter>().mesh;
+        List<Vector3> vertices = new List<Vector3>(m.vertices);
+        List<int> triangles = new List<int>();
+
+        Debug.Log("Vertices:" + m.vertices.Length + " Triangles: "+m.triangles.Length);
+
+        for(int t = 0; t< m.triangles.Length/3; t++) {
+            int anum = m.triangles[t * 3 + 0];
+            Vector3 a = m.vertices[anum];
+            int bnum = m.triangles[t * 3 + 1];
+            Vector3 b = m.vertices[m.triangles[t * 3 + 1]];
+            int cnum = m.triangles[t * 3 + 2];
+            Vector3 c = m.vertices[m.triangles[t * 3 + 2]];
+
+            float ab = Vector3.Distance(a, b);
+            float bc = Vector3.Distance(b, c) ;
+            float ca = Vector3.Distance(c, a);
+
+            float max = Mathf.Max(new float[] { ab, bc, ca });
+
+            int dnum = vertices.Count;
+
+            /*triangles.Add(anum);
+            triangles.Add(bnum);
+            triangles.Add(cnum);*/
+
+            if (ab == max) {
+                Vector3 d = (a + b) / 2;
+                vertices.Add(d);
+
+                triangles.Add(anum);
+                triangles.Add(dnum);
+                triangles.Add(cnum);
+
+                triangles.Add(dnum);
+                triangles.Add(bnum);
+                triangles.Add(cnum);
+            } else if(bc == max) {
+                Vector3 d = (b + c) / 2;
+                vertices.Add(d);
+
+                triangles.Add(bnum);
+                triangles.Add(dnum);
+                triangles.Add(anum);
+
+                triangles.Add(dnum);
+                triangles.Add(cnum);
+                triangles.Add(anum);
+            } else if (ca == max) {
+                Vector3 d = (c + a) / 2;
+                vertices.Add(d);
+
+                triangles.Add(cnum);
+                triangles.Add(dnum);
+                triangles.Add(bnum);
+
+                triangles.Add(dnum);
+                triangles.Add(anum);
+                triangles.Add(bnum);
+            }
+        }
+
+        m.vertices = vertices.ToArray();
+        m.triangles = triangles.ToArray();
+        m.uv = null;
+        m.normals = null;
+
+        m.RecalculateNormals();
+
+        Debug.Log(1);
+
+        //Vector3.Distance(vertices[0], vertices[1])
+    }
 }

@@ -5,6 +5,7 @@ using System.IO;
 using ToastPlugin;
 using TreeEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class DrawProjector : MonoBehaviour
@@ -286,7 +287,7 @@ public class DrawProjector : MonoBehaviour
         bool raycast = Physics.Raycast(this.transform.position, dir, distance);
 
         if(debug)
-            Debug.DrawRay(this.transform.position, dir * distance, raycast ? Color.red : Color.white, 100); //Debug.DrawLine(wVertex, wVertex - dir * 10, Color.red, Mathf.Infinity);
+            Debug.DrawRay(this.transform.position, dir * distance, raycast ? Color.red : Color.green, 100); //Debug.DrawLine(wVertex, wVertex - dir * 10, Color.red, Mathf.Infinity);
 
         return !raycast;
     }
@@ -307,7 +308,6 @@ public class DrawProjector : MonoBehaviour
         Vector3 center = (a + b + c) / 3;
         return isVisible(center);
     }
-
 
     /**
      * Generate without optimisation (duplicated vertices, duplicated calcul to make it more readable)
