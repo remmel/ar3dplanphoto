@@ -55,8 +55,6 @@ public class SpawnAndPhoto : MonoBehaviour
             Load();
 
         ReDrawUI3D();
-
-        DrawPointQuadOnProjector1();
     }
 
     protected void LoadGameObjectsFromParent() {
@@ -267,22 +265,13 @@ public class SpawnAndPhoto : MonoBehaviour
         dropdownCamera.AddOptions(dropdownCameraValues.Keys.ToList<string>());
     }
 
-    private void DrawPointQuadOnProjector1() {
-        //projector1
-
-        Mesh m = toProject1.GetComponent<MeshFilter>().mesh;
-        Vector3 local = m.vertices[0];
-        Vector3 world = toProject1.transform.TransformPoint(local);
-
-        GameObject go = InstSphere(world, Color.yellow);
-        go.name = "toProject1-0";
-
-
+    [ContextMenu("GenerateObj")]
+    void GenerateObj() {
         DrawProjector dp = projector1.GetComponent<DrawProjector>();
-
-        //Vector3 projected1_1 = projector1.GetComponent<Camera>().WorldToViewportPoint(world);
-        //go = InstSphere(projected1_1, Color.yellow);
-        //go.name = "projected1-0";
+        dp.GenerateGOUsingTriangleFn(this.toProject1);
+        //dp.GenerateGO(this.cube);
+        //dp.GenerateGO1FaceUsingTriangleFn(this.cube, 2);
+        //dp.GenerateGO1Face(this.cube, 2);
     }
 
     private void DestroyUI3D() {

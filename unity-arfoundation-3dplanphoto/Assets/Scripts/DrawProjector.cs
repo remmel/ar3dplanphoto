@@ -14,6 +14,7 @@ public class DrawProjector : MonoBehaviour
 
     public GameObject cube;
 
+    bool debug = true;
     private int w;
     private int h;
     int vfov = 60;
@@ -101,11 +102,6 @@ public class DrawProjector : MonoBehaviour
         go.transform.parent = this.transform;
 
         //https://forum.unity.com/threads/solved-image-projection-shader.254196/
-
-        //GenerateObj();
-        //GenerateCube();
-        //GenerateCubeUsingTriangleFn();
-        GenerateFaceUsingTriangleFn();
     }
 
     Vector3 ProjectOnPlaneCenter(Vector2 uv) { //center is (0,0)
@@ -164,7 +160,8 @@ public class DrawProjector : MonoBehaviour
         return new Vector3(x2, y2, z);
     }
 
-    public Vector2 WorldToViewportPointSimple(Vector3 worldV, bool debug = false) {
+    //alternative to WorldToViewportPoint if camera rotation is (0,0,0)
+    public Vector2 WorldToViewportPointSimple(Vector3 worldV) {
         Vector3 projected = projectSimple(worldV, 1.0f);
 
         if(debug) {
@@ -178,7 +175,7 @@ public class DrawProjector : MonoBehaviour
         return new Vector2(u, v);
     }
 
-    public Vector2 WorldToViewportPoint(Vector3 position, bool debug = false) {
+    public Vector2 WorldToViewportPoint(Vector3 position) {
         Vector2 uv =  this.GetComponent<Camera>().WorldToViewportPoint(position);
         if(debug) {
             //Vector3 projected = this.transform.forward + uv * new Vector2(getWidth(), getHeight);
@@ -192,13 +189,9 @@ public class DrawProjector : MonoBehaviour
 
     }
 
-    void GenerateObj() {
-        Mesh m = cube.GetComponent<MeshFilter>().mesh;
+    public void GenerateGO1Face(GameObject go, int numface = 3) {
+        Mesh m = go.GetComponent<MeshFilter>().mesh;
         //main face : 4 6 7 5
-        Vector3 localVertex = m.vertices[7]; //1 behind
-
-        //Vector3 worldVertex = cube.transform.TransformPoint(localVertex); //idem cube.transform.localToWorldMatrix.MultiplyPoint3x4(localVertex);
-        //GameObject o = InstSphere(worldVertex, Color.yellow);
 
         Debug.Log("vertices: "+ m.vertices.Length+ " triangles: "+ m.triangles.Length);
 
@@ -209,17 +202,18 @@ public class DrawProjector : MonoBehaviour
         string wavefrontVT = "";
         string wavefrontF = "";
 
-        int numface = 3;
+        String n = Path.GetFileNameWithoutExtension(this.fn);
 
         //for (int i = 0 ; i<m.triangles.Length; i++) Debug.Log("triangle: " + i + " -> "+ m.triangles[i]);
 
-        
-         for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 6; i++) {
             int numv = m.triangles[numface * 6 + i];
             Vector3 lVertex = m.vertices[numv]; //1 behind
 
-            Vector3 wVertex = cube.transform.TransformPoint(lVertex); //idem cube.transform.localToWorldMatrix.MultiplyPoint3x4(localVertex);
-            GameObject o = InstSphere(wVertex, Color.red);
+            Vector3 wVertex = go.transform.TransformPoint(lVertex); //idem cube.transform.localToWorldMatrix.MultiplyPoint3x4(localVertex);
+            if (debug) {
+                GameObject o = InstSphere(wVertex, Color.red);
+            }
             wavefrontV += "v "+wVertex.x+" "+wVertex.y+" "+wVertex.z+" 1.0\n";
 
             Vector3 uv = this.WorldToViewportPoint(wVertex);
@@ -227,21 +221,14 @@ public class DrawProjector : MonoBehaviour
         }
         wavefrontF += "f 1/1 2/2 3/3\n";
         wavefrontF += "f 4/4 5/5 6/6\n";
-        
-        
 
-        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/cube.obj");
-        writer.Write("# BlaBla\n\nmtllib ./cube.mtl\n\n" + wavefrontV + "\n" + wavefrontVT+ "\n"+wavefrontF);
+        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/" + n + ".obj");
+        writer.Write("# BlaBla\n\nmtllib ./" + n + ".mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
         writer.Close();
-
-
-        //projected on camera
-        //Vector3 p = project(worldVertex, 1.0f);
-        //InstSphere(p, Color.blue);
     }
 
-    void GenerateCube() {
-        Mesh m = cube.GetComponent<MeshFilter>().mesh;
+    public void GenerateGO(GameObject go) {
+        Mesh m = go.GetComponent<MeshFilter>().mesh;
 
         // 6 faces, 36 triangles, 24 vertices
 
@@ -249,13 +236,16 @@ public class DrawProjector : MonoBehaviour
         string wavefrontVT = "";
         string wavefrontF = "";
 
+        String n = Path.GetFileNameWithoutExtension(this.fn);
 
         for (int i = 0; i < m.triangles.Length; i++) {
             int numv = m.triangles[i];
             Vector3 lVertex = m.vertices[numv];
 
-            Vector3 wVertex = cube.transform.TransformPoint(lVertex);
-            GameObject o = InstSphere(wVertex, Color.red);
+            Vector3 wVertex = go.transform.TransformPoint(lVertex);
+            if (debug) {
+                GameObject o = InstSphere(wVertex, Color.red);
+            }
             wavefrontV += "v " + wVertex.x + " " + wVertex.y + " " + wVertex.z + " 1.0\n";
 
             Vector2 uv = this.WorldToViewportPoint(wVertex);
@@ -266,52 +256,51 @@ public class DrawProjector : MonoBehaviour
             }
         }
 
-        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/cube.obj");
-        writer.Write("# BlaBla\n\nmtllib ./cube.mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
+        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/" + n + ".obj");
+        writer.Write("# BlaBla\n\nmtllib ./" + n + ".mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
         writer.Close();
     }
     
 
-    void GenerateFaceUsingTriangleFn() {
-        Mesh m = cube.GetComponent<MeshFilter>().mesh;
-
+    public void GenerateGO1FaceUsingTriangleFn(GameObject go, int numface = 2) {
         string wavefrontV = "";
         string wavefrontVT = "";
         string wavefrontF = "";
 
-        int numface = 2;
+        String n = Path.GetFileNameWithoutExtension(this.fn);
 
         for (int i = 0; i<2; i++) {
-            GenerateTriangle(m, numface*2+i, ref wavefrontV, ref wavefrontVT, ref wavefrontF);
+            GenerateTriangle(go, numface*2+i, ref wavefrontV, ref wavefrontVT, ref wavefrontF);
         }
 
-        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/cube.obj");
-        writer.Write("# BlaBla\n\nmtllib ./cube.mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
+        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/" + n + ".obj");
+        writer.Write("# BlaBla\n\nmtllib ./" + n + ".mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
         writer.Close();
     }
     
 
-    void GenerateCubeUsingTriangleFn() {
-        Mesh m = cube.GetComponent<MeshFilter>().mesh;
-
+    public void GenerateGOUsingTriangleFn(GameObject go) {
         string wavefrontV = "";
         string wavefrontVT = "";
         string wavefrontF = "";
 
+        Mesh m = go.GetComponent<MeshFilter>().mesh;
+        String n = Path.GetFileNameWithoutExtension(this.fn);
 
         for (int numt = 0; numt < m.triangles.Length/3; numt ++) {
-            GenerateTriangle(m, numt, ref wavefrontV, ref wavefrontVT, ref wavefrontF);
+            GenerateTriangle(go, numt, ref wavefrontV, ref wavefrontVT, ref wavefrontF);
         }
 
-        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/cube.obj");
-        writer.Write("# BlaBla\n\nmtllib ./cube.mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
+        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/" + n + ".obj");
+        writer.Write("# BlaBla\n\nmtllib ./" + n + ".mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
         writer.Close();
     }
 
 
     // Generate without optimisation (duplicated vertices)
-    void GenerateTriangle(Mesh m, int numtriangle, ref string v, ref string vt, ref string f)
+    void GenerateTriangle(GameObject go, int numtriangle, ref string v, ref string vt, ref string f)
     {
+        Mesh m = go.GetComponent<MeshFilter>().mesh;
         f += "f ";
 
         for (int i = 0; i < 3; i++) {
@@ -319,12 +308,14 @@ public class DrawProjector : MonoBehaviour
             int numv = m.triangles[numt];
             Vector3 lVertex = m.vertices[numv];
 
-            Vector3 wVertex = cube.transform.TransformPoint(lVertex); //idem cube.transform.localToWorldMatrix.MultiplyPoint3x4(localVertex);
-            GameObject o = InstSphere(wVertex, Color.red);
+            Vector3 wVertex = go.transform.TransformPoint(lVertex); //idem cube.transform.localToWorldMatrix.MultiplyPoint3x4(localVertex);
+            if(debug) {
+                GameObject o = InstSphere(wVertex, Color.red);
+            }
+                
             v += "v " + wVertex.x + " " + wVertex.y + " " + wVertex.z + " 1.0\n";
 
-            //Vector2 uv = projectSimpleToViewport(wVertex, true);
-            Vector2 uv = this.WorldToViewportPoint(wVertex, true);
+            Vector2 uv = this.WorldToViewportPoint(wVertex);
             vt += "vt " + uv.x + " " + uv.y + "\n";
 
             int lines = v.Split('\n').Length - 1;
