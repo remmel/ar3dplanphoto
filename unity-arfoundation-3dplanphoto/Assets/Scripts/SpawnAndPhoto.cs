@@ -36,6 +36,9 @@ public class SpawnAndPhoto : MonoBehaviour
 
     public GameObject projector;
 
+    public GameObject toProject1;
+    private GameObject projector1;
+
     //save points/lines/Quads drawn to easily destory them
     private List<GameObject> ui3dGOs = new List<GameObject>(); 
 
@@ -52,6 +55,8 @@ public class SpawnAndPhoto : MonoBehaviour
             Load();
 
         ReDrawUI3D();
+
+        DrawPointQuadOnProjector1();
     }
 
     protected void LoadGameObjectsFromParent() {
@@ -101,17 +106,35 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     public void Photo() {
+        float fov = arCamera.GetComponent<Camera>().fieldOfView;
+
+
         String fn = takeSnapshot();
 
         // Create photo without UI
         GameObject go = new GameObject(fn);
         go.transform.SetPositionAndRotation(arCamera.transform.position, arCamera.transform.rotation);
 
-        //arCamera.GetComponent<Camera>().fieldOfView
+        
         spawnedPhotos.Add(go);
         Save();
 
         ReDrawUI3D();
+
+        
+    }
+
+    private float calculateFov() { // ?!?
+        // Create a ray along the upper edge of the view frustum, centered on X
+        Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2.0f, Screen.height, 0));
+
+        // Find the angle between this ray and the camera forward direction
+        float angle = Vector3.Angle(Camera.main.transform.forward, ray.direction);
+
+        // Multiply by two and you have the fov!
+        float fov = angle * 2.0f;
+        ToastHelper.ShowToast("fov: " + fov);
+        return fov;
     }
 
     private String takeSnapshot() {
@@ -238,9 +261,28 @@ public class SpawnAndPhoto : MonoBehaviour
         foreach (GameObject go in spawnedPhotos) {
             GameObject projector = DrawProjector(go.name, go.transform.position, go.transform.rotation);
             dropdownCameraValues.Add(go.name.Substring(14), projector);
+            projector1 = projector;
         }
 
         dropdownCamera.AddOptions(dropdownCameraValues.Keys.ToList<string>());
+    }
+
+    private void DrawPointQuadOnProjector1() {
+        //projector1
+
+        Mesh m = toProject1.GetComponent<MeshFilter>().mesh;
+        Vector3 local = m.vertices[0];
+        Vector3 world = toProject1.transform.TransformPoint(local);
+
+        GameObject go = InstSphere(world, Color.yellow);
+        go.name = "toProject1-0";
+
+
+        DrawProjector dp = projector1.GetComponent<DrawProjector>();
+
+        //Vector3 projected1_1 = projector1.GetComponent<Camera>().WorldToViewportPoint(world);
+        //go = InstSphere(projected1_1, Color.yellow);
+        //go.name = "projected1-0";
     }
 
     private void DestroyUI3D() {

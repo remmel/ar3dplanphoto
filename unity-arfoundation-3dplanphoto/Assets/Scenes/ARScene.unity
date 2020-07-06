@@ -991,12 +991,11 @@ MonoBehaviour:
     type: 3}
   linePrefab: {fileID: 2794556471782568434, guid: 68ab6c404b39e2541ad7d6e0db706b41,
     type: 3}
-  dropdown: {fileID: 1127630671}
+  dropdownRoom: {fileID: 1127630671}
+  dropdownCamera: {fileID: 0}
   currentRoom: 1
   load: 0
-  mat: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  planeFrame: {fileID: 8529736433188202527, guid: 5e84b02d4970f364690eff824bb64d6d,
-    type: 3}
+  matWall: {fileID: 0}
   projector: {fileID: 6125753862893372832, guid: 6fc181a4d186de546b954c1d44bfff9e,
     type: 3}
 --- !u!4 &885157068
@@ -1525,7 +1524,7 @@ GameObject:
   - component: {fileID: 1127630672}
   - component: {fileID: 1127630671}
   m_Layer: 5
-  m_Name: Dropdown
+  m_Name: DropdownRoom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

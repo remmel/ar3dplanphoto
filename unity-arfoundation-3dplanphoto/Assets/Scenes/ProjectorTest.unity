@@ -258,7 +258,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 10
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -305,7 +305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectorPrefab: {fileID: 6125753862893372832, guid: 6fc181a4d186de546b954c1d44bfff9e,
     type: 3}
-  matProject: {fileID: 2100000, guid: 7b9296b92132ef04bb633f2c9366740c, type: 2}
+  cube: {fileID: 863287545}
 --- !u!1 &863287545
 GameObject:
   m_ObjectHideFlags: 0

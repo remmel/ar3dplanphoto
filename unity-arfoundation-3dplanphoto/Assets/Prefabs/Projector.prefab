@@ -270,5 +270,5 @@ MonoBehaviour:
   plane: {fileID: 6125753862519215221}
   spherePrefab: {fileID: 3787955766548240946, guid: ef17ce9592f5ff34e98247759dfed366,
     type: 3}
+  cube: {fileID: 0}
   fn: 
-  projectorMat: {fileID: 0}
