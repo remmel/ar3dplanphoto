@@ -45,7 +45,6 @@ public class DrawProjector : MonoBehaviour
             thisProjectorMat.SetTexture("_FalloffTex", tex);
             this.GetComponent<Projector>().material = thisProjectorMat;
 
-
             w = tex.width;
             h = tex.height;
         } else {
@@ -65,21 +64,6 @@ public class DrawProjector : MonoBehaviour
         Vector3 centerplane = this.transform.position + this.transform.forward * far; //an alternative is to use go.transform.Translate
         plane.transform.position = centerplane;
         plane.transform.localScale = new Vector3(halfw * 2 * 0.1f, 0.1f, halfh * 2 * 0.1f);
-
-        /*
-        Vector3 righthalf = this.transform.right * halfw;
-        Vector3 uphalf = this.transform.up * halfh;
-        Vector3 ne = centerplane + righthalf + uphalf;
-        Vector3 se = centerplane + righthalf - uphalf;
-        Vector3 sw = centerplane - righthalf - uphalf;
-        Vector3 nw = centerplane - righthalf + uphalf;
-        */
-        /*
-        Vector3 ne = ProjectOnPlaneCenter(new Vector2(1, 1));
-        Vector3 se = ProjectOnPlaneCenter(new Vector2(1, -1));
-        Vector3 sw = ProjectOnPlaneCenter(new Vector2(-1, -1));
-        Vector3 nw = ProjectOnPlaneCenter(new Vector2(-1, 1));
-        */
 
         Vector3 ne = ProjectOnPlaneViewport(new Vector2(1, 1));
         Vector3 se = ProjectOnPlaneViewport(new Vector2(1, 0));
@@ -178,15 +162,12 @@ public class DrawProjector : MonoBehaviour
     public Vector2 WorldToViewportPoint(Vector3 position) {
         Vector2 uv =  this.GetComponent<Camera>().WorldToViewportPoint(position);
         if(debug) {
-            //Vector3 projected = this.transform.forward + uv * new Vector2(getWidth(), getHeight);
-            //GameObject pgo = InstSphere(projected, Color.cyan);
-            //pgo.transform.rotation = this.transform.rotation;
-
             Vector3 projected = ProjectOnPlaneViewport(uv);
             GameObject pgo = InstSphere(projected, Color.cyan);
+            pgo.transform.rotation = this.transform.rotation;
+            pgo.name = "Projected";
         }
         return uv;
-
     }
 
     public void GenerateGO1Face(GameObject go, int numface = 3) {
@@ -296,31 +277,82 @@ public class DrawProjector : MonoBehaviour
         writer.Close();
     }
 
+    bool isVisible(Vector3 point) {
+        Vector3 dir = (point - this.GetComponent<Camera>().transform.position).normalized;
+        //Vector3 raycastOrigin = wVertex - dir * 0.1f;
+        //bool raycast = Physics.Raycast(raycastOrigin, dir, 10); //transform.TransformDirection(Vector3.forward)
 
-    // Generate without optimisation (duplicated vertices)
+        float distance = Vector3.Distance(this.transform.position, point) - 0.01f; //remove some 1cm to avoid touching the object (excluding)
+        bool raycast = Physics.Raycast(this.transform.position, dir, distance);
+
+        if(debug)
+            Debug.DrawRay(this.transform.position, dir * distance, raycast ? Color.red : Color.white, 100); //Debug.DrawLine(wVertex, wVertex - dir * 10, Color.red, Mathf.Infinity);
+
+        return !raycast;
+    }
+
+    //need to make further check, if for example the face is in the right direction
+    bool VisibleTriangle(GameObject go, int numtriangle) {
+        Vector3 a = wordVertex(go, numtriangle * 3 + 0);
+        Vector3 b = wordVertex(go, numtriangle * 3 + 1);
+        Vector3 c = wordVertex(go, numtriangle * 3 + 2);
+        return isVisible(a) && isVisible(b) && isVisible(c); 
+    }
+
+    bool VisibleTriangleCenter(GameObject go, int numtriangle) {
+        Vector3 a = wordVertex(go, numtriangle * 3 + 0);
+        Vector3 b = wordVertex(go, numtriangle * 3 + 1);
+        Vector3 c = wordVertex(go, numtriangle * 3 + 2);
+
+        Vector3 center = (a + b + c) / 3;
+        return isVisible(center);
+    }
+
+
+    /**
+     * Generate without optimisation (duplicated vertices, duplicated calcul to make it more readable)
+     * v #vertex
+     * vt #uv value
+     * f #face(3vertex)/uv(3)
+     */
     void GenerateTriangle(GameObject go, int numtriangle, ref string v, ref string vt, ref string f)
     {
-        Mesh m = go.GetComponent<MeshFilter>().mesh;
         f += "f ";
+
+        bool visibleTriangle = VisibleTriangleCenter(go, numtriangle);
 
         for (int i = 0; i < 3; i++) {
             int numt = numtriangle * 3 + i;
-            int numv = m.triangles[numt];
-            Vector3 lVertex = m.vertices[numv];
+            Vector3 wVertex = wordVertex(go, numt);
 
-            Vector3 wVertex = go.transform.TransformPoint(lVertex); //idem cube.transform.localToWorldMatrix.MultiplyPoint3x4(localVertex);
-            if(debug) {
-                GameObject o = InstSphere(wVertex, Color.red);
+            bool visible = isVisible(wVertex);
+            if (debug) {
+                GameObject o = InstSphere(wVertex, visible ? Color.blue: Color.red);
+                o.name = "TriVertex t:" + numt + " v:"+(visible ? 1:0);
+                //o.SetActive(false);
             }
                 
             v += "v " + wVertex.x + " " + wVertex.y + " " + wVertex.z + " 1.0\n";
 
-            Vector2 uv = this.WorldToViewportPoint(wVertex);
-            vt += "vt " + uv.x + " " + uv.y + "\n";
+            if(visibleTriangle) {
+                Vector2 uv = this.WorldToViewportPoint(wVertex); //if not 0<x/y<1, next
+                vt += "vt " + uv.x + " " + uv.y + "\n";
 
-            int lines = v.Split('\n').Length - 1;
-            f += lines + "/" + lines + " ";
+                int vLine = v.Split('\n').Length - 1;
+                int vtLine = vt.Split('\n').Length - 1;
+                f += vLine + "/" + vtLine + " ";
+            } else {
+                int vLine = v.Split('\n').Length - 1;
+                f += vLine + " ";
+            }
         }
         f += "\n";
+    }
+
+    Vector3 wordVertex(GameObject go, int i) {
+        Mesh m = go.GetComponent<MeshFilter>().mesh;
+        Vector3 lVertex = m.vertices[m.triangles[i]];
+        Vector3 wVertex = go.transform.TransformPoint(lVertex); //idem cube.transform.localToWorldMatrix.MultiplyPoint3x4(localVertex);
+        return wVertex;
     }
 }
