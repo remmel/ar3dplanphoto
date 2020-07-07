@@ -41,6 +41,7 @@ public class SpawnAndPhoto : MonoBehaviour
 
     //save points/lines/Quads drawn to easily destory them
     private List<GameObject> ui3dGOs = new List<GameObject>(); 
+    private List<GameObject> wallsQuads = new List<GameObject>();
 
     Dictionary<GameObject, List<Vector3>> wallPointsList = new Dictionary<GameObject, List<Vector3>>();
 
@@ -118,8 +119,6 @@ public class SpawnAndPhoto : MonoBehaviour
         Save();
 
         ReDrawUI3D();
-
-        
     }
 
     private float calculateFov() { // ?!?
@@ -268,8 +267,11 @@ public class SpawnAndPhoto : MonoBehaviour
     [ContextMenu("GenerateObj")]
     void GenerateObj() {
         DrawProjector dp = projector1.GetComponent<DrawProjector>();
-        Math3DUtils.MeshDivide(toProject1, 9);
-        dp.GenerateGOUsingTriangleFn(this.toProject1);
+        Math3DUtils.MeshDivide(wallsQuads, 5);
+        dp.GenerateGOUsingTriangleFn(this.wallsQuads);
+
+        
+
         //dp.GenerateGO(this.cube);
         //dp.GenerateGO1FaceUsingTriangleFn(this.cube, 2);
         //dp.GenerateGO1Face(this.cube, 2);
@@ -281,6 +283,7 @@ public class SpawnAndPhoto : MonoBehaviour
             Destroy(o);
         }
         ui3dGOs.Clear();
+        wallsQuads.Clear();
         wallPointsList.Clear();
 
         dropdownCamera.ClearOptions();
@@ -442,6 +445,7 @@ public class SpawnAndPhoto : MonoBehaviour
         //mesh.RecalculateNormals();
 
         ui3dGOs.Add(go);
+        wallsQuads.Add(go);
 
         return go;
     }

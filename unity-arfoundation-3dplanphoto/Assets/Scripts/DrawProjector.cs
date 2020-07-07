@@ -267,12 +267,27 @@ public class DrawProjector : MonoBehaviour
         string wavefrontF = "";
 
         Mesh m = go.GetComponent<MeshFilter>().mesh;
-        String n = Path.GetFileNameWithoutExtension(this.fn);
-
         for (int numt = 0; numt < m.triangles.Length/3; numt ++) {
             GenerateTriangle(go, numt, ref wavefrontV, ref wavefrontVT, ref wavefrontF);
         }
 
+        String n = Path.GetFileNameWithoutExtension(this.fn);
+        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/" + n + ".obj");
+        writer.Write("# BlaBla\n\nmtllib ./" + n + ".mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
+        writer.Close();
+    }
+
+    public void GenerateGOUsingTriangleFn(List<GameObject> gos) {
+        string wavefrontV = "";
+        string wavefrontVT = "";
+        string wavefrontF = "";
+        foreach (GameObject go in gos) {
+            Mesh m = go.GetComponent<MeshFilter>().mesh;
+            for (int numt = 0; numt < m.triangles.Length / 3; numt++) {
+                GenerateTriangle(go, numt, ref wavefrontV, ref wavefrontVT, ref wavefrontF);
+            }
+        }
+        String n = Path.GetFileNameWithoutExtension(this.fn);
         StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/" + n + ".obj");
         writer.Write("# BlaBla\n\nmtllib ./" + n + ".mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
         writer.Close();
