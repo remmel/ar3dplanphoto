@@ -176,38 +176,45 @@ public class SpawnAndPhoto : MonoBehaviour
         }
     }
 
-
-    private void DrawOnePoint(GameObject p0, GameObject p1, GameObject p2) {
+    // Draw a corner if the 3 spawnedWalls intersect at a single point
+    private void DrawOneCorner(GameObject s0, GameObject s1, GameObject s2) {
         Vector3 point;
-        bool success = Math3DUtils.planesIntersectAtSinglePoint(p0, p1, p2, out point);
+        bool success = Math3DUtils.planesIntersectAtSinglePoint(s0, s1, s2, out point);
         Debug.Log("point" + point);
         if (success) {
+            GameObject go = InstSphere(point, Color.yellow);
+            ui3dGOs.Add(go);
+            go.name = "Corner";
 
-            //pointsWithGameobjets.Add(new Point3GameObjects(point, p0, p1, p2));
-            InstSphere(point, Color.yellow);
-            DrawOnePointThreeLines(point, p0, p1, p2);
-            DrawOnePointThreeLines(point, p1, p2, p0);
-            DrawOnePointThreeLines(point, p2, p0, p1);
+            GameObject line0 = DrawCornerLine(point, s0, s1, s2);
+            GameObject line1 = DrawCornerLine(point, s1, s2, s0);
+            GameObject line2 = DrawCornerLine(point, s2, s0, s1);
 
-            AddPointToWall(p0, point);
-            AddPointToWall(p1, point);
-            AddPointToWall(p2, point);
+            if (line0) line0.transform.parent = go.transform;
+            if (line1) line1.transform.parent = go.transform;
+            if (line2) line2.transform.parent = go.transform;
+
+            AddPointToWall(s0, point);
+            AddPointToWall(s1, point);
+            AddPointToWall(s2, point);
         }
     }
 
-    private void AddPointToWall(GameObject wall, Vector3 point) {
-        List<Vector3> points = wallPointsList[wall] = wallPointsList.ContainsKey(wall) ? wallPointsList[wall] : new List<Vector3>();
+    private void AddPointToWall(GameObject spawedWall, Vector3 point) {
+        List<Vector3> points = wallPointsList[spawedWall] = wallPointsList.ContainsKey(spawedWall) ? wallPointsList[spawedWall] : new List<Vector3>();
         points.Add(point);
     }
 
-    private void DrawOnePointThreeLines(Vector3 point, GameObject p0, GameObject p1, GameObject p2) {
+    // Draw a lines 
+    private GameObject DrawCornerLine(Vector3 point, GameObject s0, GameObject s1, GameObject s2) {
         Vector3 point0;
         Vector3 dir0;
-        bool success0 = Math3DUtils.planePlaneIntersection(out point0, out dir0, p0, p1);
+        bool success0 = Math3DUtils.planePlaneIntersection(out point0, out dir0, s0, s1);
         if (success0) {
-            Vector3 dir0fixed = FixPositiveNegative(dir0, p2);
-            InstLine(point + dir0fixed / 2, dir0, Color.yellow);
+            Vector3 dir0fixed = FixPositiveNegative(dir0, s2);
+            return InstLine(point + dir0fixed / 2, dir0, Color.yellow);
         }
+        return null;
     }
 
     // The direction of the line must be fixed, as a line can have 2 directions. Using the 3rd plane, we know what is its direction
@@ -226,32 +233,31 @@ public class SpawnAndPhoto : MonoBehaviour
             for (int i = 0; i < spawnedWalls.Count - 2; i++) {
                 for (int j = i + 1; j < spawnedWalls.Count - 1; j++) {
                     for (int k = j + 1; k < spawnedWalls.Count; k++) {
-                        GameObject p0 = spawnedWalls[i];
-                        GameObject p1 = spawnedWalls[j];
-                        GameObject p2 = spawnedWalls[k];
-                        Debug.Log(p0.name + " - " + p1.name + " - " + p2.name + " - i=" + i + " j=" + j + " k="+k);
-                        DrawOnePoint(p0, p1, p2);
+                        DrawOneCorner(spawnedWalls[i], spawnedWalls[j], spawnedWalls[k]);
                     }
                 }
             }
         }
-
-        //Draw lines between points
+       
         foreach (List<Vector3> vs in wallPointsList.Values) {
+            GameObject go = new GameObject("Wall");
+
+            //Draw lines between points 
             int count = vs.Count;
             for (int i=0; i< count-1; i++) {
                 for (int j=i; j<count; j++) {
-                    DrawOneLine2(vs[i], vs[j]);
+                    Math3DUtils.CreateLine(vs[i], vs[j]).transform.parent = go.transform;
                 }
             }
-        }
 
-        //Draw quad
-        foreach (List<Vector3> vs in wallPointsList.Values) {
-            int count = vs.Count;
-            if(count == 4) {
-                CreateQuad(vs.ToArray());
+            //Draw quad
+            if (vs.Count == 4) {
+                GameObject goQuad = Math3DUtils.CreateQuad(vs.ToArray(), matWall);
+                wallsQuads.Add(goQuad);
+                goQuad.transform.parent = go.transform;
             }
+
+            ui3dGOs.Add(go);
         }
 
         //Draw photo frame and add them to dropdown
@@ -270,13 +276,12 @@ public class SpawnAndPhoto : MonoBehaviour
         Math3DUtils.MeshDivide(wallsQuads, 5);
         dp.GenerateGOUsingTriangleFn(this.wallsQuads);
 
-        
-
         //dp.GenerateGO(this.cube);
         //dp.GenerateGO1FaceUsingTriangleFn(this.cube, 2);
         //dp.GenerateGO1Face(this.cube, 2);
     }
 
+    [ContextMenu("DestroyUI3D")]
     private void DestroyUI3D() {
         // Destroy
         foreach (GameObject o in ui3dGOs) {
@@ -331,15 +336,6 @@ public class SpawnAndPhoto : MonoBehaviour
         }
     }
 
-    private void DrawOneLine2(Vector3 from, Vector3 to) {
-        GameObject go = new GameObject();
-        go.name = "LineRenderer2pos";
-        LineRenderer lr = go.AddComponent<LineRenderer>();
-        lr.SetWidth(0.05f, 0.05f);
-        lr.SetPositions(new[] { from, to });
-        ui3dGOs.Add(go);
-    }
-
     private void DrawLineAll() {
         if (spawnedWalls.Count >= 2) {
             for (int i = 0; i < spawnedWalls.Count - 1; i++) {
@@ -365,7 +361,6 @@ public class SpawnAndPhoto : MonoBehaviour
     GameObject InstSphere(Vector3 vector3, Color color) {
         GameObject o = Instantiate(spherePrefab, vector3, Quaternion.identity);
         o.GetComponent<Renderer>().material.color = color;
-        ui3dGOs.Add(o);
         return o;
     }
 
@@ -373,81 +368,7 @@ public class SpawnAndPhoto : MonoBehaviour
         GameObject o = Instantiate(linePrefab, point, Quaternion.LookRotation(direction));
         o.GetComponent<Renderer>().material.color = color;
         o.transform.Rotate(90, 0, 0);
-        //o.transform.position = o.transform.position + new Vector3(0, 1f, 0);
-        ui3dGOs.Add(o);
         return o;
-    }
-
-    //https://docs.unity3d.com/Manual/Example-CreatingaBillboardPlane.html
-    GameObject CreateQuad(Vector3[] vertices) {
-
-        /*vertices = new Vector3[4] {
-            vertices[1],
-            vertices[0],
-            vertices[3],
-            vertices[2],
-        };*/
-
-        GameObject go = new GameObject();
-        go.name = "Quad";
-        MeshRenderer mr = go.AddComponent<MeshRenderer>();
-        //mr.sharedMaterial = new Material(Shader.Find("Standard"));
-        mr.material = matWall; //mat circles
-        //mr.material.mainTexture.wrapMode = TextureWrapMode.Repeat;
-        mr.material.mainTextureScale = new Vector2(Vector3.Distance(vertices[0], vertices[1]), Vector3.Distance(vertices[1], vertices[2]));
-
-        //mr.material.wrapMode = TextureWrapMode.Repeat;
-
-        MeshFilter mf = go.AddComponent<MeshFilter>();
-
-        Mesh mesh = new Mesh();
-
-        //InstSphere(vertices[0], Color.cyan);
-        
-        mesh.vertices = vertices;
-
-        int[] tris = new int[12]
-        {
-            // lower left triangle
-            0, 2, 1,
-            // upper right triangle
-            2, 3, 1,
-
-            //double sides
-            3, 2, 1,
-            2, 0, 1
-        };
-        //TODO reorganize order
-        mesh.triangles = tris;
-
-        // TODO double side quad
-
-        /* Vector3[] normals = new Vector3[4]
-         {
-             -Vector3.forward,
-             -Vector3.forward,
-             -Vector3.forward,
-             -Vector3.forward
-         };
-         mesh.normals = normals;*/
-
-        Vector2[] uv = new Vector2[4]
-        {
-            new Vector2(0, 0),
-            new Vector2(1, 0),
-            new Vector2(0, 1),
-            new Vector2(1, 1)
-        };
-        mesh.uv = uv;
-        mf.mesh = mesh;
-
-        //mesh.RecalculateBounds();
-        //mesh.RecalculateNormals();
-
-        ui3dGOs.Add(go);
-        wallsQuads.Add(go);
-
-        return go;
     }
 
     void DebugDrawLineVect(Vector3 point, Vector3 direction, float length, Color color, float duration) {
@@ -464,7 +385,6 @@ public class SpawnAndPhoto : MonoBehaviour
         if(val == count -1) { //dropdown.options[val].text == "New Room"
             dropdownRoom.options.Insert(count - 1 , new Dropdown.OptionData() { text = "Room " + count });
         }
-
     }
 
     public void Update() {

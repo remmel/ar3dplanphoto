@@ -168,4 +168,126 @@ public class Math3DUtils
 
         //Vector3.Distance(vertices[0], vertices[1])
     }
+
+    // https://docs.unity3d.com/Manual/Example-CreatingaBillboardPlane.html
+    public static void CreateQuad(int width, int height, Material mat = null) {
+        GameObject go = new GameObject();
+        go.name = "Quadwh";
+        MeshRenderer meshRenderer = go.AddComponent<MeshRenderer>();
+        meshRenderer.sharedMaterial = new Material(Shader.Find("Standard"));
+
+        MeshFilter meshFilter = go.AddComponent<MeshFilter>();
+
+        Mesh mesh = new Mesh();
+
+        Vector3[] vertices = new Vector3[4]
+        {
+            new Vector3(0, 0, 0),
+            new Vector3(width, 0, 0),
+            new Vector3(0, height, 0),
+            new Vector3(width, height, 0)
+        };
+        mesh.vertices = vertices;
+
+        int[] tris = new int[6]
+        {
+            // lower left triangle
+            0, 2, 1,
+            // upper right triangle
+            2, 3, 1
+        };
+        mesh.triangles = tris;
+
+        Vector3[] normals = new Vector3[4]
+        {
+            -Vector3.forward,
+            -Vector3.forward,
+            -Vector3.forward,
+            -Vector3.forward
+        };
+        mesh.normals = normals;
+
+        Vector2[] uv = new Vector2[4]
+        {
+            new Vector2(0, 0),
+            new Vector2(1, 0),
+            new Vector2(0, 1),
+            new Vector2(1, 1)
+        };
+        mesh.uv = uv;
+
+        meshFilter.mesh = mesh;
+    }
+
+    public static GameObject CreateQuad(Vector3[] vertices, Material mat = null, bool doubleside = false) {
+        GameObject go = new GameObject();
+        go.name = "Quadv";
+        MeshRenderer mr = go.AddComponent<MeshRenderer>();
+        //mr.sharedMaterial = new Material(Shader.Find("Standard"));
+        mr.material = mat;
+        //mr.material.mainTextureScale = new Vector2(Vector3.Distance(vertices[0], vertices[1]), Vector3.Distance(vertices[1], vertices[2]));
+
+        MeshFilter meshFilter = go.AddComponent<MeshFilter>();
+
+        Mesh mesh = new Mesh();
+        mesh.vertices = vertices;
+
+        
+        if(!doubleside) {
+            mesh.triangles = new int[6] {
+                // lower left triangle
+                0, 2, 1,
+                // upper right triangle
+                2, 3, 1
+            };
+        } else {
+            mesh.triangles = new int[12]{
+                // lower left triangle
+                0, 2, 1,
+                // upper right triangle
+                2, 3, 1,
+
+                //double sides
+                3, 2, 1,
+                2, 0, 1
+            };
+        }
+        
+        /*
+         Vector3[] normals = new Vector3[4]
+        {
+            -Vector3.forward,
+            -Vector3.forward,
+            -Vector3.forward,
+            -Vector3.forward
+        };
+        mesh.normals = normals;
+        */
+
+        Vector2[] uv = new Vector2[4]
+        {
+            new Vector2(0, 0),
+            new Vector2(1, 0),
+            new Vector2(0, 1),
+            new Vector2(1, 1)
+        };
+        mesh.uv = uv;
+
+        //mesh.RecalculateBounds();
+        //mesh.RecalculateNormals();
+
+        meshFilter.mesh = mesh;
+
+        return go;
+    }
+
+    public static GameObject CreateLine(Vector3 from, Vector3 to, float width = 0.05f) {
+        GameObject go = new GameObject();
+        go.name = "LineRenderer2pos";
+        LineRenderer lr = go.AddComponent<LineRenderer>();
+        lr.startWidth = width;
+        
+        lr.SetPositions(new[] { from, to });
+        return go;
+    }
 }
