@@ -15,7 +15,7 @@ public class DrawProjector : MonoBehaviour
 
     public GameObject cube;
 
-    bool debug = true;
+    bool debug = false;
     private int w;
     private int h;
     int vfov = 60;
@@ -309,6 +309,22 @@ public class DrawProjector : MonoBehaviour
         return isVisible(center);
     }
 
+    bool OutOfViewportTriangle(GameObject go, int numtriangle) {
+        Vector3 a = wordVertex(go, numtriangle * 3 + 0);
+        Vector3 b = wordVertex(go, numtriangle * 3 + 1);
+        Vector3 c = wordVertex(go, numtriangle * 3 + 2);
+
+        return OutOfViewportWV(a) || OutOfViewportWV(b) || OutOfViewportWV(c);
+    }
+
+    bool OutOfViewportWV(Vector3 wordVector) {
+        return this.OutOfViewportUV(this.WorldToViewportPoint(wordVector));
+    }
+
+    bool OutOfViewportUV(Vector2 uv) {
+        return uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f;
+    }
+
     /**
      * Generate without optimisation (duplicated vertices, duplicated calcul to make it more readable)
      * v #vertex
@@ -320,6 +336,7 @@ public class DrawProjector : MonoBehaviour
         f += "f ";
 
         bool visibleTriangle = VisibleTriangleCenter(go, numtriangle);
+        bool outOfViewport = OutOfViewportTriangle(go, numtriangle);
 
         for (int i = 0; i < 3; i++) {
             int numt = numtriangle * 3 + i;
@@ -334,8 +351,9 @@ public class DrawProjector : MonoBehaviour
                 
             v += "v " + wVertex.x + " " + wVertex.y + " " + wVertex.z + " 1.0\n";
 
-            if(visibleTriangle) {
+            if(visibleTriangle && !outOfViewport) {
                 Vector2 uv = this.WorldToViewportPoint(wVertex); //if not 0<x/y<1, next
+
                 vt += "vt " + uv.x + " " + uv.y + "\n";
 
                 int vLine = v.Split('\n').Length - 1;

@@ -84,6 +84,11 @@ public class Math3DUtils
         return forward;
     }
 
+    public static void MeshDivide(GameObject go, int repeat) {
+        for (int i = 0; i < repeat; i++)
+            MeshDivide(go);
+    }
+
     public static void MeshDivide(GameObject go) {
         Mesh m = go.GetComponent<MeshFilter>().mesh;
         List<Vector3> vertices = new List<Vector3>(m.vertices);

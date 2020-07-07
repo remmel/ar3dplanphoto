@@ -22,6 +22,7 @@ public class ProjectorTestMain : MonoBehaviour
     [ContextMenu("GenerateObj")]
     void GenerateObj() {
         DrawProjector dp = projector.GetComponent<DrawProjector>();
+        Math3DUtils.MeshDivide(this.toProject1, 3);
         dp.GenerateGOUsingTriangleFn(this.toProject1);
         //dp.GenerateGO(this.cube);
         //dp.GenerateGO1FaceUsingTriangleFn(this.cube, 2);

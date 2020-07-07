@@ -268,6 +268,7 @@ public class SpawnAndPhoto : MonoBehaviour
     [ContextMenu("GenerateObj")]
     void GenerateObj() {
         DrawProjector dp = projector1.GetComponent<DrawProjector>();
+        Math3DUtils.MeshDivide(toProject1, 9);
         dp.GenerateGOUsingTriangleFn(this.toProject1);
         //dp.GenerateGO(this.cube);
         //dp.GenerateGO1FaceUsingTriangleFn(this.cube, 2);
