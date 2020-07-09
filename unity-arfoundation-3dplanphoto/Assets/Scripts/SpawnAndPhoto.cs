@@ -21,7 +21,6 @@ public class SpawnAndPhoto : MonoBehaviour
     public List<List<GameObject>> spawnedWallsByRoom = new List<List<GameObject>>(); //spawned of all rooms
     public GameObject spawnedParentDebug; //used to load dumb rooms
 
-    public GameObject spherePrefab; //to display corners
     public GameObject linePrefab;
 
     public Dropdown dropdownRoom; //menu rooms
@@ -182,7 +181,7 @@ public class SpawnAndPhoto : MonoBehaviour
         bool success = Math3DUtils.planesIntersectAtSinglePoint(s0, s1, s2, out point);
         Debug.Log("point" + point);
         if (success) {
-            GameObject go = InstSphere(point, Color.yellow);
+            GameObject go = Math3DUtils.CreateSphere(point, Color.yellow, 0.1f);
             ui3dGOs.Add(go);
             go.name = "Corner";
 
@@ -358,13 +357,8 @@ public class SpawnAndPhoto : MonoBehaviour
         }
     }
 
-    GameObject InstSphere(Vector3 vector3, Color color) {
-        GameObject o = Instantiate(spherePrefab, vector3, Quaternion.identity);
-        o.GetComponent<Renderer>().material.color = color;
-        return o;
-    }
-
     GameObject InstLine(Vector3 point, Vector3 direction, Color color) {
+        //return Math3DUtils.CreateLine(point, direction, color);
         GameObject o = Instantiate(linePrefab, point, Quaternion.LookRotation(direction));
         o.GetComponent<Renderer>().material.color = color;
         o.transform.Rotate(90, 0, 0);

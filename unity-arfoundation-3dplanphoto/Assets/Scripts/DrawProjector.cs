@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using ToastPlugin;
-using TreeEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.UI;
 
 public class DrawProjector : MonoBehaviour
 {
     public GameObject plane; //where to display the photo
-    public GameObject spherePrefab;
 
     public GameObject cube;
 
@@ -77,14 +71,10 @@ public class DrawProjector : MonoBehaviour
         Debug.DrawLine(this.transform.position,sw, Color.white, 99f);
         Debug.DrawLine(this.transform.position, nw, Color.white, 99f);       
 
-        GameObject go = Instantiate(spherePrefab, ne, Quaternion.identity);
-        go.transform.parent = this.transform;
-        go = Instantiate(spherePrefab, se, Quaternion.identity);
-        go.transform.parent = this.transform;
-        go = Instantiate(spherePrefab, sw, Quaternion.identity);
-        go.transform.parent = this.transform;
-        go = Instantiate(spherePrefab, nw, Quaternion.identity);
-        go.transform.parent = this.transform;
+        Math3DUtils.CreateSphere(ne, Color.red).transform.parent = this.transform;
+        Math3DUtils.CreateSphere(se, Color.red).transform.parent = this.transform;
+        Math3DUtils.CreateSphere(sw, Color.red).transform.parent = this.transform;
+        Math3DUtils.CreateSphere(nw, Color.red).transform.parent = this.transform;
 
         //https://forum.unity.com/threads/solved-image-projection-shader.254196/
     }
@@ -105,12 +95,6 @@ public class DrawProjector : MonoBehaviour
         Vector3 right = this.transform.right * (uv.x - 0.5f) * 2 * halfw;
         Vector3 up = this.transform.up * (uv.y - 0.5f) * 2 * halfh;
         return centerplane + right + up;
-    }
-
-    GameObject InstSphere(Vector3 vector3, Color color) {
-        GameObject o = Instantiate(spherePrefab, vector3, Quaternion.identity);
-        o.GetComponent<Renderer>().material.color = color;
-        return o;
     }
 
     float getHorizontalFov() {
@@ -150,7 +134,7 @@ public class DrawProjector : MonoBehaviour
         Vector3 projected = projectSimple(worldV, 1.0f);
 
         if(debug) {
-            GameObject pgo = InstSphere(projected, Color.cyan);
+            GameObject pgo = Math3DUtils.CreateSphere(projected, Color.cyan);
             pgo.transform.rotation = this.transform.rotation;
         }
 
@@ -164,7 +148,7 @@ public class DrawProjector : MonoBehaviour
         Vector2 uv =  this.GetComponent<Camera>().WorldToViewportPoint(position);
         if(debug) {
             Vector3 projected = ProjectOnPlaneViewport(uv);
-            GameObject pgo = InstSphere(projected, Color.cyan);
+            GameObject pgo = Math3DUtils.CreateSphere(projected, Color.cyan);
             pgo.transform.rotation = this.transform.rotation;
             pgo.name = "Projected";
         }
@@ -194,7 +178,7 @@ public class DrawProjector : MonoBehaviour
 
             Vector3 wVertex = go.transform.TransformPoint(lVertex); //idem cube.transform.localToWorldMatrix.MultiplyPoint3x4(localVertex);
             if (debug) {
-                GameObject o = InstSphere(wVertex, Color.red);
+                GameObject o = Math3DUtils.CreateSphere(wVertex, Color.red);
             }
             wavefrontV += "v "+wVertex.x+" "+wVertex.y+" "+wVertex.z+" 1.0\n";
 
@@ -210,36 +194,15 @@ public class DrawProjector : MonoBehaviour
     }
 
     public void GenerateGO(GameObject go) {
-        Mesh m = go.GetComponent<MeshFilter>().mesh;
-
-        // 6 faces, 36 triangles, 24 vertices
-
-        string wavefrontV = "";
-        string wavefrontVT = "";
-        string wavefrontF = "";
-
         String n = Path.GetFileNameWithoutExtension(this.fn);
 
-        for (int i = 0; i < m.triangles.Length; i++) {
-            int numv = m.triangles[i];
-            Vector3 lVertex = m.vertices[numv];
+        Camera camera = this.GetComponent<Camera>();
+        go.AddComponent<TriangleTexture>();
 
-            Vector3 wVertex = go.transform.TransformPoint(lVertex);
-            if (debug) {
-                GameObject o = InstSphere(wVertex, Color.red);
-            }
-            wavefrontV += "v " + wVertex.x + " " + wVertex.y + " " + wVertex.z + " 1.0\n";
-
-            Vector2 uv = this.WorldToViewportPoint(wVertex);
-            wavefrontVT += "vt " + uv.x + " " + uv.y + "\n";
-
-            if (i % 3 == 0) {
-                wavefrontF += "f " + (i + 1) + "/" + (i + 1) + " " + (i + 2) + "/" + (i + 2) + " " + (i + 3) + "/" + (i + 3) + "\n";
-            }
-        }
+        string export = go.GetComponent<TriangleTexture>().Export(new List<Camera> { camera });
 
         StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/" + n + ".obj");
-        writer.Write("# BlaBla\n\nmtllib ./" + n + ".mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
+        writer.Write(export);
         writer.Close();
     }
     
@@ -312,7 +275,7 @@ public class DrawProjector : MonoBehaviour
         Vector3 a = wordVertex(go, numtriangle * 3 + 0);
         Vector3 b = wordVertex(go, numtriangle * 3 + 1);
         Vector3 c = wordVertex(go, numtriangle * 3 + 2);
-        return isVisible(a) && isVisible(b) && isVisible(c); 
+        return isVisible(a) && isVisible(b) && isVisible(c);
     }
 
     bool VisibleTriangleCenter(GameObject go, int numtriangle) {
@@ -333,11 +296,7 @@ public class DrawProjector : MonoBehaviour
     }
 
     bool OutOfViewportWV(Vector3 wordVector) {
-        return this.OutOfViewportUV(this.WorldToViewportPoint(wordVector));
-    }
-
-    bool OutOfViewportUV(Vector2 uv) {
-        return uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f;
+        return Math3DUtils.OutOfViewportUV(this.WorldToViewportPoint(wordVector));
     }
 
     /**
@@ -353,13 +312,40 @@ public class DrawProjector : MonoBehaviour
         bool visibleTriangle = VisibleTriangleCenter(go, numtriangle);
         bool outOfViewport = OutOfViewportTriangle(go, numtriangle);
 
+        //TODO calculate angle and distance
+
+        Vector3 a = wordVertex(go, numtriangle * 3 + 0);
+        Vector3 b = wordVertex(go, numtriangle * 3 + 1);
+        Vector3 c = wordVertex(go, numtriangle * 3 + 2);
+
+        if(numtriangle == 0) {
+            Plane plane = new Plane(a, b, c);
+
+            Vector3 norm = plane.normal;
+            Debug.Log("normal:" + norm);
+
+            Math3DUtils.CreateSphere(a, Color.gray);
+            Debug.DrawRay(a, norm, Color.white, 100);
+            Debug.Log("dir:" + this.transform.forward);
+
+            Vector3 dirProjector = this.transform.forward;
+
+            Debug.DrawRay(a, -dirProjector, Color.grey, 100);
+
+            Debug.Log("Angle:" + Vector3.Angle(norm, -dirProjector)); // mod 90
+
+            //Vector3 triangleNormal = Vector3.Cross(Vector3.Cross(a, b),  //https://docs.unity3d.com/Manual/ComputingNormalPerpendicularVector.html
+        }
+
+
+
         for (int i = 0; i < 3; i++) {
             int numt = numtriangle * 3 + i;
             Vector3 wVertex = wordVertex(go, numt);
 
             bool visible = isVisible(wVertex);
             if (debug) {
-                GameObject o = InstSphere(wVertex, visible ? Color.blue: Color.red);
+                GameObject o = Math3DUtils.CreateSphere(wVertex, visible ? Color.blue : Color.red);
                 o.name = "TriVertex t:" + numt + " v:"+(visible ? 1:0);
                 //o.SetActive(false);
             }

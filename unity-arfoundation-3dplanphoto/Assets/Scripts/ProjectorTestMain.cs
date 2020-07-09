@@ -22,10 +22,10 @@ public class ProjectorTestMain : MonoBehaviour
     [ContextMenu("GenerateObj")]
     void GenerateObj() {
         DrawProjector dp = projector.GetComponent<DrawProjector>();
-        Math3DUtils.MeshDivide(this.toProject1, 3);
-        dp.GenerateGOUsingTriangleFn(this.toProject1);
-        //dp.GenerateGO(this.cube);
-        //dp.GenerateGO1FaceUsingTriangleFn(this.cube, 2);
-        //dp.GenerateGO1Face(this.cube, 2);
+        //Math3DUtils.MeshDivide(this.toProject1, 3);
+       // dp.GenerateGOUsingTriangleFn(this.toProject1);
+        dp.GenerateGO(this.toProject1);
+        //dp.GenerateGO1FaceUsingTriangleFn(this.toProject1, 2);
+        //dp.GenerateGO1Face(this.toProject1, 2);
     }
 }

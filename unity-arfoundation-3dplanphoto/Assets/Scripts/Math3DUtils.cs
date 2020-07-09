@@ -290,4 +290,31 @@ public class Math3DUtils
         lr.SetPositions(new[] { from, to });
         return go;
     }
+
+    public static GameObject CreateSphere(Vector3 position, Color color, float scale = 0.05f) {
+        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        UnityEngine.Object.Destroy(go.GetComponent<Collider>());
+        go.transform.localScale *= scale;
+        go.transform.position = position;
+        if(color != null)
+            go.GetComponent<Renderer>().material.color = color;
+        return go;
+    }
+
+    // TODO fix
+    public static GameObject CreateLine(Vector3 position, Vector3 dir, Color color, float radius = 0.05f, float size = 1f) {
+        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        go.transform.position = position;
+        go.transform.localScale = new Vector3(radius, size, radius);
+        go.transform.rotation = Quaternion.LookRotation(dir);
+        go.transform.Rotate(90, 0, 0);
+        go.GetComponent<Renderer>().material.color = color;
+        UnityEngine.Object.Destroy(go.GetComponent<Collider>());
+
+        return go;
+    }
+
+    public static bool OutOfViewportUV(Vector2 uv) {
+        return uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f;
+    }
 }
