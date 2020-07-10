@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TriangleTex
+public class TriangleTextureData
 {
 //    public int numTriangle;
     public Vector3 center;

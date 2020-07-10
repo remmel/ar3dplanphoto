@@ -218,7 +218,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 63.25
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -247,7 +247,7 @@ Projector:
   serializedVersion: 2
   m_NearClipPlane: 0.1
   m_FarClipPlane: 100
-  m_FieldOfView: 60
+  m_FieldOfView: 63.25
   m_AspectRatio: 1.3331409
   m_Orthographic: 0
   m_OrthographicSize: 10
@@ -268,7 +268,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   plane: {fileID: 6125753862519215221}
-  spherePrefab: {fileID: 3787955766548240946, guid: ef17ce9592f5ff34e98247759dfed366,
-    type: 3}
   cube: {fileID: 0}
   fn: 

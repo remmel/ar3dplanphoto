@@ -7,9 +7,8 @@ There are multiple possilities/framework to do that:
 
 # unity-arfoundation-3dplanphoto
 Try doing that using Unity Ar Fondation framework
-Can currently put 6 markers on 6 room faces and generate the corners and 6 quads with dumb texture.
+Can currently put 6 markers, one per face of the room (walls, floor, ceil), take pictures and it generates the rooms (6 quads) with the texture in .obj format.
 Take picture and place a representation of the picture/projector in the 3D world.
-Can generate the obj file with texture of 1 object from 1 projector.
 Can remove marker when clicking into it.
 
 Unity/Scenes :
@@ -22,7 +21,8 @@ Todo:
 - ARScene :
     - Handle multiple rooms
     - Generate floormap
-    - Generate UV Texture : not outside of frustum, not hidden faces, use better projector, divided into smaller triangles
+    - Generate UV Texture : use better projector, get fov
+	- Take photo without markers
 - ARCube : from smartphone, place a cube and project texture
 - Java : convert Unity to Android Java project
 

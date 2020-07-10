@@ -1,13 +1,14 @@
 ﻿using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class TriangleTexture : MonoBehaviour
 {
-    TriangleTex[] vts; 
+    public TriangleTextureData[] vts; //store the relation between each triangle and uv texture
 
-    Vector3[] worldVertices;
+    Vector3[] worldVertices; //store that to avoid recalculating it
 
     static bool debug = false;
 
@@ -15,12 +16,11 @@ public class TriangleTexture : MonoBehaviour
         return this.GetComponent<MeshFilter>().mesh;
     }
 
-    void Init()
+    public void Init()
     {
         Mesh m = getMesh();
         int nbTriangles = m.triangles.Length / 3;
-        // Dictionary<int, TriangleTex> vts = new Dictionary<int, TriangleTex>(nbTriangles);
-        vts = new TriangleTex[nbTriangles];
+        vts = new TriangleTextureData[nbTriangles];
 
         worldVertices = new Vector3[m.vertices.Length];
         for (int i = 0; i < m.vertices.Length; i++) {
@@ -28,23 +28,13 @@ public class TriangleTexture : MonoBehaviour
         }
 
         for (int t=0; t<nbTriangles; t++) {
-            TriangleTex tex = new TriangleTex();
+            TriangleTextureData tex = new TriangleTextureData();
             tex.center = getCenter(t);
             vts[t] = tex;
         }
     }
 
-    Vector3 getWordVertex(int t) {
-        Mesh m = getMesh();
-        Vector3 lVertex = m.vertices[m.triangles[t]];
-        return this.transform.TransformPoint(lVertex);
-    }
-
     Vector3 getCenter(int t) {
-        //Vector3 a = getWordVertex(i * 3 + 0);
-        //Vector3 b = getWordVertex(i * 3 + 1);
-        //Vector3 c = getWordVertex(i * 3 + 2);
-
         Mesh m = getMesh();
 
         int v = m.triangles[t * 3 + 0];
@@ -81,7 +71,7 @@ public class TriangleTexture : MonoBehaviour
         Vector3 b = uvs[m.triangles[numtriangle * 3 + 1]];
         Vector3 c = uvs[m.triangles[numtriangle * 3 + 2]];
 
-        return Math3DUtils.OutOfViewportUV(a) || Math3DUtils.OutOfViewportUV(b) || Math3DUtils.OutOfViewportUV(c);
+        return OutOfViewportUV(a) || OutOfViewportUV(b) || OutOfViewportUV(c);
     }
 
     float getAngle(int t) {
@@ -92,48 +82,49 @@ public class TriangleTexture : MonoBehaviour
         Vector3 c = worldVertices[m.triangles[t * 3 + 2]];
 
         Plane plane = new Plane(a, b, c);
-
         Vector3 norm = plane.normal;
-        Debug.Log("normal:" + norm);
-
-        Math3DUtils.CreateSphere(a, Color.gray);
-        Debug.DrawRay(a, norm, Color.white, 100);
-        Debug.Log("dir:" + this.transform.forward);
 
         Vector3 dirProjector = this.transform.forward;
-
-        Debug.DrawRay(a, -dirProjector, Color.grey, 100);
-
         float angle = Vector3.Angle(norm, -dirProjector);
-        Debug.Log("Angle:" + angle); // mod 90
+
+        if (debug) {
+            Debug.Log("normal:" + norm);
+            Math3DUtils.CreateSphere(a, Color.gray);
+            Debug.DrawRay(a, norm, Color.white, 100);
+            Debug.DrawRay(a, -dirProjector, Color.grey, 100);
+            Debug.Log("dir:" + this.transform.forward);
+            Debug.Log("Angle:" + angle); // mod 90
+        }
 
         return angle;
     }
 
-    public void CalculateUV(Camera camera) {
+    public void CalculateUV(List<Camera> cameras) {
+        Init();
+        foreach (Camera camera in cameras)
+            this.CalculateUV(camera); //for each projection
+    }
+
+    protected void CalculateUV(Camera camera) {
         Mesh m = this.GetComponent<MeshFilter>().mesh;
 
-        Init();
-
-        // precalculate all uv (quick to calculate worldToViewPoint or raycast?
+        // precalculate all uv (quicker to calculate worldToViewPoint or raycast?)
         Vector2[] uvs = new Vector2[m.vertices.Length];
         for(int i = 0; i<m.vertices.Length; i++) {
             Vector2 uv = camera.WorldToViewportPoint(this.worldVertices[i]);
             uvs[i] = uv;
-
-            /*
-            if (debug) {
-                Vector3 projected = ProjectOnPlaneViewport(uv);
+            
+            /*if (true || debug) {
+                Vector3 projected = camera.GetComponent<DrawProjector>().ProjectOnPlaneViewport(uv);
                 GameObject pgo = Math3DUtils.CreateSphere(projected, Color.cyan);
                 pgo.transform.rotation = this.transform.rotation;
                 pgo.name = "Projected";
-            }
-            */
+            }*/
         }
 
 
         for (int t = 0; t < m.triangles.Length / 3; t++) {
-            TriangleTex vt = vts[t];
+            TriangleTextureData vt = vts[t];
 
             bool outOfView = this.OutOfViewportTriangle(uvs, t);
             bool visible = isVisible(vt.center, camera.transform);
@@ -144,65 +135,16 @@ public class TriangleTexture : MonoBehaviour
                 Vector3 c = uvs[m.triangles[t * 3 + 2]];
 
                 vt.uvs3 = new Vector2[] { a, b, c };
-                vt.photo = "cube";
+                vt.photo = camera.GetComponent<DrawProjector>().fn;
                 vt.distance = Vector3.Distance(camera.transform.position, vt.center);
                 vt.angle = this.getAngle(t);
             }
         }
+
+        Debug.Log("end");
     }
 
-    public string Export(List<Camera> cameras, ref int offsetV, ref int offsetVT) {
-        Init();
-
-        foreach(Camera camera in cameras)
-            CalculateUV(camera); //for each projection
-
-
-        Mesh m = this.GetComponent<MeshFilter>().mesh;
-
-        // cube: 6 faces, 36 triangles, 24 vertices
-        Debug.Log("vertices: " + m.vertices.Length + " triangles: " + m.triangles.Length + " offsetV:"+offsetV+ " offsetVT:"+offsetVT);
-
-        string wavefrontV = "";
-        string wavefrontVT = "";
-        string wavefrontF = "";
-
-        for (int i = 0; i < m.vertices.Length; i++) {
-            Vector3 wVertex = this.transform.TransformPoint(m.vertices[i]);
-            wavefrontV += "v " + wVertex.x + " " + wVertex.y + " " + wVertex.z + " 1.0\n";
-        }
-
-        int vt = 0;
-        for (int t = 0; t < m.triangles.Length / 3; t++) {
-            TriangleTex ttex = this.vts[t];
-
-            int va = m.triangles[t * 3 + 0] + offsetV;
-            int vb = m.triangles[t * 3 + 1] + offsetV;
-            int vc = m.triangles[t * 3 + 2] + offsetV;
-
-            if(ttex.uvs3 != null) {
-                foreach (Vector2 uv in ttex.uvs3) { //do not handle when same uv twice (duplicate date) //should group by texture (ttex['cube'] = [])
-                    wavefrontVT += "vt " + uv.x + " " + uv.y + "\n";
-                }
-                wavefrontF += "f " + (va + 1) + "/" + (offsetVT + vt + 1) + " " + (vb + 1) + "/" + (offsetVT + vt+2) + " " + (vc + 1) + "/" + (offsetVT + vt+3) + "\n";
-                vt += 3;
-            } else {
-                wavefrontF += "f " + (va + 1) + " " + (vb + 1) + " " + (vc + 1) + "\n";
-            }
-        }
-
-
-
-        offsetV += m.vertices.Length;
-        offsetVT += vt;
-
-        string n = "cube";
-        return
-            "o " + this.name + "\n\n" +
-            "mtllib ./" + n + ".mtl\n\n" +
-            wavefrontV + "\n" +
-            wavefrontVT + "\n" +
-            wavefrontF +
-            "#" + System.DateTime.Now.ToLongDateString() + " " + System.DateTime.Now.ToLongTimeString() + " v=" + m.vertices.Length + "; vt=" + vt + "; f=" + m.triangles.Length + ";" + "\n";
+    public static bool OutOfViewportUV(Vector2 uv) {
+        return uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f;
     }
 }

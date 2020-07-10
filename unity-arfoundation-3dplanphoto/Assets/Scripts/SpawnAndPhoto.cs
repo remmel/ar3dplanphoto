@@ -33,10 +33,9 @@ public class SpawnAndPhoto : MonoBehaviour
 
     public Material matWall;
 
-    public GameObject projector;
+    public GameObject projectorPrefab;
 
-    public GameObject toProject1;
-    private GameObject projector1;
+    private List<GameObject> projectors = new List<GameObject>();
 
     //save points/lines/Quads drawn to easily destory them
     private List<GameObject> ui3dGOs = new List<GameObject>(); 
@@ -251,7 +250,7 @@ public class SpawnAndPhoto : MonoBehaviour
 
             //Draw quad
             if (vs.Count == 4) {
-                GameObject goQuad = Math3DUtils.CreateQuad(vs.ToArray(), matWall);
+                GameObject goQuad = Math3DUtils.CreateQuad(vs.ToArray(), matWall, true);
                 wallsQuads.Add(goQuad);
                 goQuad.transform.parent = go.transform;
             }
@@ -260,10 +259,11 @@ public class SpawnAndPhoto : MonoBehaviour
         }
 
         //Draw photo frame and add them to dropdown
+        dropdownCameraValues.Add("All", null);
         foreach (GameObject go in spawnedPhotos) {
             GameObject projector = DrawProjector(go.name, go.transform.position, go.transform.rotation);
             dropdownCameraValues.Add(go.name.Substring(14), projector);
-            projector1 = projector;
+            projectors.Add(projector);
         }
 
         dropdownCamera.AddOptions(dropdownCameraValues.Keys.ToList<string>());
@@ -271,13 +271,14 @@ public class SpawnAndPhoto : MonoBehaviour
 
     [ContextMenu("GenerateObj")]
     void GenerateObj() {
-        DrawProjector dp = projector1.GetComponent<DrawProjector>();
-        Math3DUtils.MeshDivide(wallsQuads, 5);
-        dp.GenerateGOUsingTriangleFn(this.wallsQuads);
+        Math3DUtils.MeshDivide(wallsQuads, 7);
 
-        //dp.GenerateGO(this.cube);
-        //dp.GenerateGO1FaceUsingTriangleFn(this.cube, 2);
-        //dp.GenerateGO1Face(this.cube, 2);
+        List<Camera> cameras = new List<Camera>();
+        foreach (GameObject go in projectors)
+            if(go.active) //to be able to disable some projection to debug
+                cameras.Add(go.GetComponent<Camera>());
+
+        ObjExportUtils.Export(cameras, this.wallsQuads);
     }
 
     [ContextMenu("DestroyUI3D")]
@@ -295,11 +296,22 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     public void DropdownCameraChanged(int position) {
-        GameObject go = dropdownCameraValues.Values.ElementAt<GameObject>(position);
-        Debug.Log("choosed " + go.name);
+        GameObject curProjector = dropdownCameraValues.Values.ElementAt<GameObject>(position);
 
-        Camera.main.transform.position = go.transform.position;
-        Camera.main.transform.rotation = go.transform.rotation;
+        if(curProjector == null) {
+            foreach(GameObject projector in projectors) {
+                projector.SetActive(true);
+            }
+        } else {
+            foreach (GameObject projector in projectors) {
+                projector.SetActive(false);
+            }
+            Debug.Log("choosed " + curProjector.name);
+
+            curProjector.SetActive(true);
+            Camera.main.transform.position = curProjector.transform.position;
+            Camera.main.transform.rotation = curProjector.transform.rotation;
+        }
     }
 
     private void DrawPhotoPlane(string fn, Vector3 position, Quaternion rotation) {
@@ -318,7 +330,7 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     private GameObject DrawProjector(string fn, Vector3 position, Quaternion rotation) {
-        GameObject o = Instantiate(projector, position, rotation);
+        GameObject o = Instantiate(projectorPrefab, position, rotation);
         o.GetComponent<DrawProjector>().fn = fn;
         o.name = "Projector " + fn;
         ui3dGOs.Add(o);
