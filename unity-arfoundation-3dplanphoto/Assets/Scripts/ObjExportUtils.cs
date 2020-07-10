@@ -10,8 +10,8 @@ public class ObjExportUtils
 
         // Calculate UV
         foreach (GameObject go in gos) {
-            go.AddComponent<TriangleTexture>();
-            go.GetComponent<TriangleTexture>().CalculateUV(cameras);
+            TriangleTexture tt = go.GetComponent<TriangleTexture>() ?? go.AddComponent<TriangleTexture>();
+            tt.CalculateUV(cameras);
         }
 
         // Export Mat & Objs
@@ -42,10 +42,8 @@ public class ObjExportUtils
         string export = "";
         int offsetV = 0;
         int offsetVT = 0;
-        foreach (GameObject go in gos) {
-            go.AddComponent<TriangleTexture>();
+        foreach (GameObject go in gos)
             export += ExportOneGameObject(go, ref offsetV, ref offsetVT) + "\n";
-        }
 
         Write(Application.persistentDataPath + "/" + objname + ".obj", export);
     }
@@ -55,7 +53,7 @@ public class ObjExportUtils
         TriangleTexture tt = go.GetComponent<TriangleTexture>();
 
         // cube: 6 faces, 36 triangles, 24 vertices
-        Debug.Log("vertices: " + m.vertices.Length + " triangles: " + m.triangles.Length + " offsetV:" + offsetV + " offsetVT:" + offsetVT);
+        //Debug.Log("vertices: " + m.vertices.Length + " triangles: " + m.triangles.Length + " offsetV:" + offsetV + " offsetVT:" + offsetVT);
 
         string wavefrontV = "";
         string wavefrontVT = "";
@@ -77,7 +75,7 @@ public class ObjExportUtils
 
             if (ttex.uvs3 != null) {
                 foreach (Vector2 uv in ttex.uvs3) { //do not handle when same uv twice (duplicate date) //should group by texture (ttex['cube'] = [])
-                    wavefrontVT += "vt " + uv.x + " " + uv.y + "\n";
+                    wavefrontVT += "vt " + uv.x + " " + uv.y + " # angle="+ttex.angle+ " distance=" + ttex.distance +"\n";
                 }
 
                 string matnamecur = Path.GetFileNameWithoutExtension(ttex.photo);

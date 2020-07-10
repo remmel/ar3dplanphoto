@@ -22,6 +22,12 @@ public class ProjectorTestMain : MonoBehaviour
     [ContextMenu("GenerateObj")]
     void GenerateObj() {
         Camera camera = projector.GetComponent<Camera>();
-        ObjExportUtils.Export(new List<Camera> { camera }, this.toProjectList);
+        List<GameObject> activeGos = new List<GameObject>();
+
+        foreach (GameObject go in this.toProjectList)
+            if(go.activeSelf) activeGos.Add(go);
+
+
+        ObjExportUtils.Export(new List<Camera> { camera }, activeGos);
     }
 }

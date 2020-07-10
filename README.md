@@ -21,7 +21,7 @@ Todo:
 - ARScene :
     - Handle multiple rooms
     - Generate floormap
-    - Generate UV Texture : use better projector, get fov
+    - Generate UV Texture : get fov
 	- Take photo without markers
 - ARCube : from smartphone, place a cube and project texture
 - Java : convert Unity to Android Java project

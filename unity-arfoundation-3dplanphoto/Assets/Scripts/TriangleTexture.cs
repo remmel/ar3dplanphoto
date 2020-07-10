@@ -1,4 +1,5 @@
-﻿using System.CodeDom.Compiler;
+﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -61,10 +62,6 @@ public class TriangleTexture : MonoBehaviour
     }
 
     bool OutOfViewportTriangle(Vector2[] uvs, int numtriangle) {
-        //Vector3 a = getWordVertex(numtriangle * 3 + 0);
-        //Vector3 b = getWordVertex(numtriangle * 3 + 1);
-        //Vector3 c = getWordVertex(numtriangle * 3 + 2);
-
         Mesh m = getMesh();
 
         Vector3 a = uvs[m.triangles[numtriangle * 3 + 0]];
@@ -74,7 +71,7 @@ public class TriangleTexture : MonoBehaviour
         return OutOfViewportUV(a) || OutOfViewportUV(b) || OutOfViewportUV(c);
     }
 
-    float getAngle(int t) {
+    float getAngle(int t, Camera camera) {
         Mesh m = getMesh();
 
         Vector3 a = worldVertices[m.triangles[t * 3 + 0]];
@@ -84,14 +81,14 @@ public class TriangleTexture : MonoBehaviour
         Plane plane = new Plane(a, b, c);
         Vector3 norm = plane.normal;
 
-        Vector3 dirProjector = this.transform.forward;
+        Vector3 dirProjector = camera.transform.forward;
         float angle = Vector3.Angle(norm, -dirProjector);
 
         if (debug) {
             Debug.Log("normal:" + norm);
             Math3DUtils.CreateSphere(a, Color.gray);
             Debug.DrawRay(a, norm, Color.white, 100);
-            Debug.DrawRay(a, -dirProjector, Color.grey, 100);
+            Debug.DrawRay(a, -dirProjector, Color.black, 100);
             Debug.Log("dir:" + this.transform.forward);
             Debug.Log("Angle:" + angle); // mod 90
         }
@@ -134,14 +131,17 @@ public class TriangleTexture : MonoBehaviour
                 Vector3 b = uvs[m.triangles[t * 3 + 1]];
                 Vector3 c = uvs[m.triangles[t * 3 + 2]];
 
-                vt.uvs3 = new Vector2[] { a, b, c };
-                vt.photo = camera.GetComponent<DrawProjector>().fn;
-                vt.distance = Vector3.Distance(camera.transform.position, vt.center);
-                vt.angle = this.getAngle(t);
+                float curAngle = this.getAngle(t, camera);
+
+                if (vt.uvs3 == null || Math.Abs(curAngle % 90) < Math.Abs(vt.angle % 90)) { //not set OR new angle is better / smaller
+                    vt.uvs3 = new Vector2[] { a, b, c };
+                    vt.photo = camera.GetComponent<DrawProjector>().fn;
+                    vt.distance = Vector3.Distance(camera.transform.position, vt.center);
+                    vt.angle = curAngle;
+                    Debug.Log("angle: " + vt.angle);
+                }
             }
         }
-
-        Debug.Log("end");
     }
 
     public static bool OutOfViewportUV(Vector2 uv) {
