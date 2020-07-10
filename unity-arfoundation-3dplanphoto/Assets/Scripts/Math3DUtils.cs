@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class Math3DUtils
@@ -316,5 +317,29 @@ public class Math3DUtils
 
     public static bool OutOfViewportUV(Vector2 uv) {
         return uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f;
+    }
+
+    public static void ExportObj(Camera camera, GameObject go) {
+        ExportObj(new List<Camera> { camera }, new List<GameObject> { go });
+    }
+
+    //TODO use script https://wiki.unity3d.com/index.php/ExportOBJ#:~:text=Select%20an%20object%20in%20the,OBJ%20file.
+    public static void ExportObj(List<Camera> cameras, List<GameObject> gos) {
+        String n = "export";
+
+        string export = "";
+
+        int offsetV = 0;
+        int offsetVT = 0;
+
+        foreach(GameObject go in gos) {
+            //Camera camera = projector.GetComponent<Camera>();
+            go.AddComponent<TriangleTexture>();
+            export += go.GetComponent<TriangleTexture>().Export(cameras, ref offsetV, ref offsetVT) + "\n";
+        }
+
+        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/" + n + ".obj");
+        writer.Write(export);
+        writer.Close();
     }
 }

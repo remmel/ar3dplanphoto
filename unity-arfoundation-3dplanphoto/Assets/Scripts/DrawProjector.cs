@@ -192,19 +192,6 @@ public class DrawProjector : MonoBehaviour
         writer.Write("# BlaBla\n\nmtllib ./" + n + ".mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF);
         writer.Close();
     }
-
-    public void GenerateGO(GameObject go) {
-        String n = Path.GetFileNameWithoutExtension(this.fn);
-
-        Camera camera = this.GetComponent<Camera>();
-        go.AddComponent<TriangleTexture>();
-
-        string export = go.GetComponent<TriangleTexture>().Export(new List<Camera> { camera });
-
-        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/" + n + ".obj");
-        writer.Write(export);
-        writer.Close();
-    }
     
 
     public void GenerateGO1FaceUsingTriangleFn(GameObject go, int numface = 2) {

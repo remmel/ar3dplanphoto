@@ -5,7 +5,7 @@ using UnityEngine;
 public class ProjectorTestMain : MonoBehaviour
 {
     public GameObject projectorPrefab;
-    public GameObject toProject1;
+    public List<GameObject> toProjectList;
 
     protected GameObject projector;
 
@@ -21,10 +21,14 @@ public class ProjectorTestMain : MonoBehaviour
 
     [ContextMenu("GenerateObj")]
     void GenerateObj() {
-        DrawProjector dp = projector.GetComponent<DrawProjector>();
+       //  DrawProjector dp = projector.GetComponent<DrawProjector>();
         //Math3DUtils.MeshDivide(this.toProject1, 3);
-       // dp.GenerateGOUsingTriangleFn(this.toProject1);
-        dp.GenerateGO(this.toProject1);
+        // dp.GenerateGOUsingTriangleFn(this.toProject1);
+
+        Camera camera = projector.GetComponent<Camera>();
+
+
+        Math3DUtils.ExportObj(new List<Camera> { camera }, this.toProjectList);
         //dp.GenerateGO1FaceUsingTriangleFn(this.toProject1, 2);
         //dp.GenerateGO1Face(this.toProject1, 2);
     }

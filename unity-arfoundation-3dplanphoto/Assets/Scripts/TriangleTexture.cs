@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.CodeDom.Compiler;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -150,7 +151,7 @@ public class TriangleTexture : MonoBehaviour
         }
     }
 
-    public string Export(List<Camera> cameras) {
+    public string Export(List<Camera> cameras, ref int offsetV, ref int offsetVT) {
         Init();
 
         foreach(Camera camera in cameras)
@@ -160,7 +161,7 @@ public class TriangleTexture : MonoBehaviour
         Mesh m = this.GetComponent<MeshFilter>().mesh;
 
         // cube: 6 faces, 36 triangles, 24 vertices
-        Debug.Log("vertices: " + m.vertices.Length + " triangles: " + m.triangles.Length);
+        Debug.Log("vertices: " + m.vertices.Length + " triangles: " + m.triangles.Length + " offsetV:"+offsetV+ " offsetVT:"+offsetVT);
 
         string wavefrontV = "";
         string wavefrontVT = "";
@@ -171,25 +172,37 @@ public class TriangleTexture : MonoBehaviour
             wavefrontV += "v " + wVertex.x + " " + wVertex.y + " " + wVertex.z + " 1.0\n";
         }
 
+        int vt = 0;
         for (int t = 0; t < m.triangles.Length / 3; t++) {
             TriangleTex ttex = this.vts[t];
 
-            int va = m.triangles[t * 3 + 0];
-            int vb = m.triangles[t * 3 + 1];
-            int vc = m.triangles[t * 3 + 2];
+            int va = m.triangles[t * 3 + 0] + offsetV;
+            int vb = m.triangles[t * 3 + 1] + offsetV;
+            int vc = m.triangles[t * 3 + 2] + offsetV;
 
             if(ttex.uvs3 != null) {
-                int vt = wavefrontVT.Split('\n').Length;
                 foreach (Vector2 uv in ttex.uvs3) { //do not handle when same uv twice (duplicate date) //should group by texture (ttex['cube'] = [])
                     wavefrontVT += "vt " + uv.x + " " + uv.y + "\n";
                 }
-                wavefrontF += "f " + (va + 1) + "/" + (vt) + " " + (vb + 1) + "/" + (vt+1) + " " + (vc + 1) + "/" + (vt+2) + "\n";
+                wavefrontF += "f " + (va + 1) + "/" + (offsetVT + vt + 1) + " " + (vb + 1) + "/" + (offsetVT + vt+2) + " " + (vc + 1) + "/" + (offsetVT + vt+3) + "\n";
+                vt += 3;
             } else {
                 wavefrontF += "f " + (va + 1) + " " + (vb + 1) + " " + (vc + 1) + "\n";
             }
         }
 
+
+
+        offsetV += m.vertices.Length;
+        offsetVT += vt;
+
         string n = "cube";
-        return "# BlaBla\n\nmtllib ./" + n + ".mtl\n\n" + wavefrontV + "\n" + wavefrontVT + "\n" + wavefrontF;
+        return
+            "o " + this.name + "\n\n" +
+            "mtllib ./" + n + ".mtl\n\n" +
+            wavefrontV + "\n" +
+            wavefrontVT + "\n" +
+            wavefrontF +
+            "#" + System.DateTime.Now.ToLongDateString() + " " + System.DateTime.Now.ToLongTimeString() + " v=" + m.vertices.Length + "; vt=" + vt + "; f=" + m.triangles.Length + ";" + "\n";
     }
 }
