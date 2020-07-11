@@ -250,15 +250,20 @@ public class SpawnAndPhoto : MonoBehaviour
             ui3dGOs.Add(go);
         }
 
-        //Draw photo frame and add them to dropdown
-        dropdownCameraValues.Add("All", null);
+        //Draw photo frame from photo taken // also load fov ?
         foreach (GameObject go in spawnedPhotos) {
-            GameObject projector = DrawProjector(go.name, go.transform.position, go.transform.rotation);
-            dropdownCameraValues.Add(go.name.Substring(14), projector);
-            projectors.Add(projector);
+            projectors.Add(DrawProjector(go.name, go.transform.position, go.transform.rotation));
         }
 
-        dropdownCamera.AddOptions(dropdownCameraValues.Keys.ToList<string>());
+        // Add Projector to dropdown
+        if (dropdownCamera) {
+            //Draw photo frame and add them to dropdown
+            dropdownCameraValues.Add("All", null);
+            foreach (GameObject projector in projectors) {
+                dropdownCameraValues.Add(projector.name.Substring(14), projector);
+            }
+            dropdownCamera.AddOptions(dropdownCameraValues.Keys.ToList<string>());
+        }  
     }
 
     [ContextMenu("GenerateObj")]
@@ -283,8 +288,10 @@ public class SpawnAndPhoto : MonoBehaviour
         wallsQuads.Clear();
         wallPointsList.Clear();
 
-        dropdownCamera.ClearOptions();
-        dropdownCameraValues.Clear();
+        if(dropdownCamera) {
+            dropdownCamera.ClearOptions();
+            dropdownCameraValues.Clear();
+        }
     }
 
     public void DropdownCameraChanged(int position) {
