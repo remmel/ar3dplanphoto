@@ -79,15 +79,6 @@ public class SpawnAndPhoto : MonoBehaviour
         }
     }
 
-    public void SpawnAndTake() {
-
-        // Create object
-        GameObject obj = Instantiate(wallToSpawn, placementIndicator.transform.position, placementIndicator.transform.rotation);
-        Debug.Log("Spawn&Take"); //adb logcat -s Unity PackageManager dalvikvm DEBUG //adb logcat -v time -s Unity
-
-        String fn = takeSnapshot();
-    }
-
     public void Wall() {
         GameObject wall = Instantiate(wallToSpawn, placementIndicator.transform.position, placementIndicator.transform.rotation);
         spawnedWalls.Add(wall);
@@ -103,15 +94,16 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     public void Photo() {
-        float fov = arCamera.GetComponent<Camera>().fieldOfView;
-
+        //float fov = arCamera.GetComponent<Camera>().fieldOfView;
+        //float focalLenght = arCamera.GetComponent<Camera>().focalLength;
+        //ToastHelper.ShowToast("focalLenght:" + focalLenght);
+        //calculateFov();
 
         String fn = takeSnapshot();
 
         // Create photo without UI
         GameObject go = new GameObject(fn);
         go.transform.SetPositionAndRotation(arCamera.transform.position, arCamera.transform.rotation);
-
         
         spawnedPhotos.Add(go);
         Save();

@@ -987,8 +987,6 @@ MonoBehaviour:
   spawnedWalls: []
   spawnedPhotos: []
   spawnedParentDebug: {fileID: 0}
-  spherePrefab: {fileID: 4102208713350425073, guid: 8632aeb95f867bd49b5dea95a35847f2,
-    type: 3}
   linePrefab: {fileID: 2794556471782568434, guid: 68ab6c404b39e2541ad7d6e0db706b41,
     type: 3}
   dropdownRoom: {fileID: 1127630671}
@@ -996,7 +994,7 @@ MonoBehaviour:
   currentRoom: 1
   load: 0
   matWall: {fileID: 0}
-  projector: {fileID: 6125753862893372832, guid: 6fc181a4d186de546b954c1d44bfff9e,
+  projectorPrefab: {fileID: 6125753862893372832, guid: 6fc181a4d186de546b954c1d44bfff9e,
     type: 3}
 --- !u!4 &885157068
 Transform:
