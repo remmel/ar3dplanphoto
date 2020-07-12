@@ -44,8 +44,6 @@ public class SpawnAndPhoto : MonoBehaviour
 
     Dictionary<GameObject, List<Vector3>> wallPointsList = new Dictionary<GameObject, List<Vector3>>();
 
-    private WebCamTexture webCamTexture;
-
     public void Start() {
         //load parent to spawnedObjs2
 
@@ -140,27 +138,6 @@ public class SpawnAndPhoto : MonoBehaviour
         Debug.Log("Screenshot saved in " + pathSnap);
         ToastHelper.ShowToast("Screenshot saved in " + pathSnap);
         return fn;
-    }
-
-    private string takePhoto() {
-        ////Frame.CameraImage.AcquireCameraImageBytes()
-        //in Start() (black screen if devices != 0
-        /*WebCamDevice device = WebCamTexture.devices[0];
-        Debug.Log(device.availableResolutions);
-        Resolution res = device.availableResolutions[10];
-        webCamTexture = new WebCamTexture(device.name, res.width, res.height);
-        webCamTexture.Play();*/
-
-        Texture2D tex = new Texture2D(webCamTexture.width, webCamTexture.height);
-        tex.SetPixels(webCamTexture.GetPixels());
-        tex.Apply();
-        string timeStamp = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-        string path = Application.persistentDataPath + "/Photo_" + timeStamp + ".jpg";
-        System.IO.File.WriteAllBytes(path, tex.EncodeToJPG());
-        Debug.Log("Photo saved in " + path);
-        ToastHelper.ShowToast("Photo saved in " + path);
-        webCamTexture.Stop();
-        return path;
     }
 
     [ContextMenu("Save")]
