@@ -5,6 +5,7 @@ using ToastPlugin;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.IO;
 
 
 //TODO check if all pictures saved in json files, later load them, later display frame 
@@ -42,6 +43,8 @@ public class SpawnAndPhoto : MonoBehaviour
     private List<GameObject> wallsQuads = new List<GameObject>();
 
     Dictionary<GameObject, List<Vector3>> wallPointsList = new Dictionary<GameObject, List<Vector3>>();
+
+    private WebCamTexture webCamTexture;
 
     public void Start() {
         //load parent to spawnedObjs2
@@ -99,7 +102,7 @@ public class SpawnAndPhoto : MonoBehaviour
         //ToastHelper.ShowToast("focalLenght:" + focalLenght);
         //calculateFov();
 
-        String fn = takeSnapshot();
+        string fn = takeSnapshot();
 
         // Create photo without UI
         GameObject go = new GameObject(fn);
@@ -124,6 +127,7 @@ public class SpawnAndPhoto : MonoBehaviour
         return fov;
     }
 
+    // https://docs.unity3d.com/ScriptReference/WaitForEndOfFrame.html
     private String takeSnapshot() {
         Texture2D snap = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
         snap.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
@@ -136,6 +140,27 @@ public class SpawnAndPhoto : MonoBehaviour
         Debug.Log("Screenshot saved in " + pathSnap);
         ToastHelper.ShowToast("Screenshot saved in " + pathSnap);
         return fn;
+    }
+
+    private string takePhoto() {
+        ////Frame.CameraImage.AcquireCameraImageBytes()
+        //in Start() (black screen if devices != 0
+        /*WebCamDevice device = WebCamTexture.devices[0];
+        Debug.Log(device.availableResolutions);
+        Resolution res = device.availableResolutions[10];
+        webCamTexture = new WebCamTexture(device.name, res.width, res.height);
+        webCamTexture.Play();*/
+
+        Texture2D tex = new Texture2D(webCamTexture.width, webCamTexture.height);
+        tex.SetPixels(webCamTexture.GetPixels());
+        tex.Apply();
+        string timeStamp = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+        string path = Application.persistentDataPath + "/Photo_" + timeStamp + ".jpg";
+        System.IO.File.WriteAllBytes(path, tex.EncodeToJPG());
+        Debug.Log("Photo saved in " + path);
+        ToastHelper.ShowToast("Photo saved in " + path);
+        webCamTexture.Stop();
+        return path;
     }
 
     [ContextMenu("Save")]

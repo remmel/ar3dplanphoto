@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class PhoneCamera : MonoBehaviour
 {
-
+    // Huawei P20 Pro ; 0) camera center 3648x2736 1) 2816x2112 front 2) calera center 3648x2736 3) camera bottom B&W 3624x2448 4) 3264x2448 top camera zoom
     // https://github.com/sseasycode/SSTools
     private bool cameraAvailable;
     private WebCamTexture webCamTexture;
@@ -24,7 +24,6 @@ public class PhoneCamera : MonoBehaviour
 
         if (devices.Length == 0) {
             Debug.LogError("no camera detected");
-            cameraAvailable = false;
             return;
         }
 
