@@ -2,8 +2,10 @@
 Objective is to be able to create 3d plan of house, adding real texture using an Android device.
 There are multiple possilities/framework to do that:
 - Unity AR Foundation
+- ARCore for Unity
 - Unity Vuforia
 - ARCore directly (java/kotlin)
+- ARCore NDK (C++)
 
 # unity-arfoundation-3dplanphoto
 Try doing that using Unity Ar Fondation framework
