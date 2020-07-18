@@ -14,7 +14,7 @@ public class SpawnAndPhoto : MonoBehaviour
 {
     public GameObject wallToSpawn;
     public GameObject arCamera;
-    public PlacementIndicatorS placementIndicator;
+    public PlacementIndicator placementIndicator;
 
     public List<GameObject> spawnedWalls = new List<GameObject>(); //current room spawned objs
     public List<GameObject> spawnedPhotos = new List<GameObject>();

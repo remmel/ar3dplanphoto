@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
-public class PlacementIndicatorS : MonoBehaviour
+public class PlacementIndicator : MonoBehaviour
 {
     private ARRaycastManager rayManager;
     private GameObject visual;
