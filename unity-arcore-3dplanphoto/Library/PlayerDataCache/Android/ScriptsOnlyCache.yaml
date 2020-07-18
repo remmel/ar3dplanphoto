@@ -1,11 +1,11 @@
 ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
+    - ARPlace
     - GoogleARCore.ARCoreBackgroundRenderer
     - GoogleARCore.ARCoreCameraConfigFilter
     - GoogleARCore.ARCoreSession
     - GoogleARCore.ARCoreSessionConfig
-    - GoogleARCore.EnvironmentalLight
     - GoogleARCore.Examples.Common.DepthEffect
     - GoogleARCore.Examples.Common.DepthMenu
     - GoogleARCore.Examples.Common.DepthTexture
@@ -60,8 +60,6 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 104
       Script: {instanceID: 0}
-    - Class: 108
-      Script: {instanceID: 0}
     - Class: 114
       Script: {instanceID: 11214}
     - Class: 114
@@ -74,8 +72,6 @@ ScriptsOnlyBuild:
       Script: {instanceID: 11764}
     - Class: 114
       Script: {instanceID: 11954}
-    - Class: 114
-      Script: {instanceID: 11964}
     - Class: 114
       Script: {instanceID: 11982}
     - Class: 114
@@ -112,6 +108,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 13752}
     - Class: 114
       Script: {instanceID: 13772}
+    - Class: 114
+      Script: {instanceID: 22254}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -925,6 +923,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: PlayableTrack
+  - hash:
+      serializedVersion: 2
+      Hash: 7f1c848fec1b6d0f323e0ce9575dde7e
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: ARPlace
   platform: 13
   scenePathNames:
   - Assets/Scenes/ARScene.unity
