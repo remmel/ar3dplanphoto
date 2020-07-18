@@ -9,11 +9,11 @@ public class ARPlace : MonoBehaviour
 
     public PlacementIndicator placementIndicator;
 
-    protected SpawnAndPhoto spawnAndPhoto;
+    protected DrawRoom spawnAndPhoto;
 
     public void Start() {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        spawnAndPhoto = GetComponent<SpawnAndPhoto>();
+        spawnAndPhoto = GetComponent<DrawRoom>();
     }
 
     public void Update() {

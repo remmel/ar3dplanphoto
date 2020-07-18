@@ -10,7 +10,7 @@ using System.IO;
 
 //TODO check if all pictures saved in json files, later load them, later display frame 
 
-public class SpawnAndPhoto : MonoBehaviour
+public class DrawRoom : MonoBehaviour
 {
     public GameObject wallToSpawn;
 
@@ -85,14 +85,11 @@ public class SpawnAndPhoto : MonoBehaviour
 
     public void AddPhoto(Transform arCameraTransform) {
         string fn = takeSnapshot();
-
         // Create photo without UI
         GameObject go = new GameObject(fn);
         go.transform.SetPositionAndRotation(arCameraTransform.position, arCameraTransform.rotation);
-        
         spawnedPhotos.Add(go);
         Save();
-
         ReDrawUI3D();
     }
 
@@ -110,7 +107,7 @@ public class SpawnAndPhoto : MonoBehaviour
     }
 
     // https://docs.unity3d.com/ScriptReference/WaitForEndOfFrame.html
-    private String takeSnapshot() {
+    private string takeSnapshot() {
         Texture2D snap = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
         snap.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
         snap.Apply();
@@ -366,6 +363,7 @@ public class SpawnAndPhoto : MonoBehaviour
         Vector3 linePointa = point + direction * length;
         Vector3 linePointb = point - direction * length;
         Debug.DrawLine(linePointa, linePointb, color, duration);
+        //TODO use Debug.DrawRay
     }
 
     public void OnDropDownChange(int val) {
