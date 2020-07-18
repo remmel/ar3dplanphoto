@@ -13,8 +13,6 @@ using System.IO;
 public class SpawnAndPhoto : MonoBehaviour
 {
     public GameObject wallToSpawn;
-    public GameObject arCamera;
-    public PlacementIndicator placementIndicator;
 
     public List<GameObject> spawnedWalls = new List<GameObject>(); //current room spawned objs
     public List<GameObject> spawnedPhotos = new List<GameObject>();
@@ -47,8 +45,6 @@ public class SpawnAndPhoto : MonoBehaviour
     public void Start() {
         //load parent to spawnedObjs2
 
-        Screen.sleepTimeout = SleepTimeout.NeverSleep;
-
         //LoadGameObjectsFromParent();
 
         if(load)
@@ -80,31 +76,19 @@ public class SpawnAndPhoto : MonoBehaviour
         }
     }
 
-    public void Wall() {
-        GameObject wall = Instantiate(wallToSpawn, placementIndicator.transform.position, placementIndicator.transform.rotation);
+    public void AddWall(Transform placementIndicatorTransform) {
+        GameObject wall = Instantiate(wallToSpawn, placementIndicatorTransform.position, placementIndicatorTransform.rotation);
         spawnedWalls.Add(wall);
-        Debug.Log("Spawn");
-        Debug.Log("cube: " + JsonUtility.ToJson(wall.transform.position));
-        Debug.Log("camera: " + JsonUtility.ToJson(arCamera.transform.position));
         Save();
-
-        //DrawPointLast();
-        //DrawLineLast();
-
         ReDrawUI3D();
     }
 
-    public void Photo() {
-        //float fov = arCamera.GetComponent<Camera>().fieldOfView;
-        //float focalLenght = arCamera.GetComponent<Camera>().focalLength;
-        //ToastHelper.ShowToast("focalLenght:" + focalLenght);
-        //calculateFov();
-
+    public void AddPhoto(Transform arCameraTransform) {
         string fn = takeSnapshot();
 
         // Create photo without UI
         GameObject go = new GameObject(fn);
-        go.transform.SetPositionAndRotation(arCamera.transform.position, arCamera.transform.rotation);
+        go.transform.SetPositionAndRotation(arCameraTransform.position, arCameraTransform.rotation);
         
         spawnedPhotos.Add(go);
         Save();
@@ -394,28 +378,10 @@ public class SpawnAndPhoto : MonoBehaviour
         }
     }
 
-    public void Update() {
-        UpdateClickToRemove();
-    }
-
-    private void UpdateClickToRemove() {
-        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) { //TODO handle when clicking on button (should not remove any objects)
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            if (Physics.Raycast(ray, out hit, 100.0f)) {
-                if (hit.transform) {
-                    GameObject go = hit.transform.gameObject;
-
-                    print(go.name);
-
-                    spawnedWalls.Remove(go);
-                    spawnedWallsByRoom.ForEach(objs => objs.Remove(go));
-                    Destroy(go); //should destroy only if wall
-
-                    ReDrawUI3D();
-                }
-            }
-        }
+    public void RemoveGO(GameObject go) {
+        spawnedWalls.Remove(go);
+        spawnedWallsByRoom.ForEach(objs => objs.Remove(go));
+        Destroy(go); //should destroy only if wall
+        ReDrawUI3D();
     }
 }
