@@ -35,7 +35,7 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.Text
     - UnityEngine.UI.Toggle
   sceneClasses:
-    Assets/GoogleARCore/Examples/HelloAR/Scenes/HelloAR.unity:
+    Assets/Scenes/ARScene.unity:
     - Class: 1
       Script: {instanceID: 0}
     - Class: 4
@@ -57,8 +57,6 @@ ScriptsOnlyBuild:
     - Class: 64
       Script: {instanceID: 0}
     - Class: 84
-      Script: {instanceID: 0}
-    - Class: 89
       Script: {instanceID: 0}
     - Class: 104
       Script: {instanceID: 0}
@@ -129,8 +127,6 @@ ScriptsOnlyBuild:
     - Class: 223
       Script: {instanceID: 0}
     - Class: 224
-      Script: {instanceID: 0}
-    - Class: 258
       Script: {instanceID: 0}
     - Class: 328
       Script: {instanceID: 0}
@@ -931,5 +927,5 @@ ScriptsOnlyBuild:
     className: PlayableTrack
   platform: 13
   scenePathNames:
-  - Assets/GoogleARCore/Examples/HelloAR/Scenes/HelloAR.unity
+  - Assets/Scenes/ARScene.unity
   playerPath: C:/Users/Comparabus/Documents/GitHub/ar3dplanphoto/unity-arcore-3dplanphoto/apk.apk
