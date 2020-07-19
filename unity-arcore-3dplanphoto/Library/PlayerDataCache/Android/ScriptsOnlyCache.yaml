@@ -7,7 +7,6 @@ ScriptsOnlyBuild:
     - GoogleARCore.ARCoreSession
     - GoogleARCore.ARCoreSessionConfig
     - GoogleARCore.Examples.Common.DepthEffect
-    - GoogleARCore.Examples.Common.DepthMenu
     - GoogleARCore.Examples.Common.DepthTexture
     - GoogleARCore.Examples.Common.DetectedPlaneGenerator
     - GoogleARCore.Examples.Common.DetectedPlaneVisualizer
@@ -15,7 +14,6 @@ ScriptsOnlyBuild:
     - GoogleARCore.Examples.Common.PointcloudVisualizer
     - GoogleARCore.Examples.Common.RawImageVideoPlayer
     - GoogleARCore.Examples.Common.ShadowQuadHelper
-    - GoogleARCore.Examples.HelloAR.HelloARController
     Unity.Rider.Editor.dll:
     - Packages.Rider.Editor.UnitTesting.CallbackData
     UnityEditor.TestRunner.dll:
@@ -33,7 +31,6 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.Image
     - UnityEngine.UI.RawImage
     - UnityEngine.UI.Text
-    - UnityEngine.UI.Toggle
   sceneClasses:
     Assets/Scenes/ARScene.unity:
     - Class: 1
@@ -67,49 +64,43 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 11524}
     - Class: 114
-      Script: {instanceID: 11608}
+      Script: {instanceID: 11732}
     - Class: 114
-      Script: {instanceID: 11764}
+      Script: {instanceID: 11766}
     - Class: 114
-      Script: {instanceID: 11954}
+      Script: {instanceID: 11958}
     - Class: 114
-      Script: {instanceID: 11982}
+      Script: {instanceID: 11986}
     - Class: 114
-      Script: {instanceID: 12046}
+      Script: {instanceID: 12050}
     - Class: 114
-      Script: {instanceID: 12166}
+      Script: {instanceID: 12170}
     - Class: 114
-      Script: {instanceID: 12264}
+      Script: {instanceID: 12268}
     - Class: 114
-      Script: {instanceID: 12452}
+      Script: {instanceID: 12456}
     - Class: 114
-      Script: {instanceID: 12606}
+      Script: {instanceID: 12610}
     - Class: 114
-      Script: {instanceID: 12632}
+      Script: {instanceID: 12636}
     - Class: 114
-      Script: {instanceID: 12712}
+      Script: {instanceID: 12716}
     - Class: 114
-      Script: {instanceID: 12824}
+      Script: {instanceID: 12834}
     - Class: 114
-      Script: {instanceID: 12830}
+      Script: {instanceID: 12924}
     - Class: 114
-      Script: {instanceID: 12920}
-    - Class: 114
-      Script: {instanceID: 13010}
-    - Class: 114
-      Script: {instanceID: 13242}
+      Script: {instanceID: 13014}
     - Class: 114
       Script: {instanceID: 13246}
     - Class: 114
-      Script: {instanceID: 13352}
+      Script: {instanceID: 13250}
     - Class: 114
-      Script: {instanceID: 13404}
+      Script: {instanceID: 13356}
     - Class: 114
-      Script: {instanceID: 13752}
+      Script: {instanceID: 13408}
     - Class: 114
-      Script: {instanceID: 13772}
-    - Class: 114
-      Script: {instanceID: 22254}
+      Script: {instanceID: 13756}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -317,6 +308,12 @@ ScriptsOnlyBuild:
     assemblyName: Assembly-CSharp.dll
     namespaceName: GoogleARCore.Examples.ComputerVision
     className: TextureReader
+  - hash:
+      serializedVersion: 2
+      Hash: b6c0ec299d0b8b9196a9c56f286b8d81
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: ARPlace
   - hash:
       serializedVersion: 2
       Hash: bd3cf68c8964d3c66d1c43f4f98508c9
@@ -923,12 +920,6 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: PlayableTrack
-  - hash:
-      serializedVersion: 2
-      Hash: 7f1c848fec1b6d0f323e0ce9575dde7e
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: ARPlace
   platform: 13
   scenePathNames:
   - Assets/Scenes/ARScene.unity

@@ -107,6 +107,7 @@ public class DrawRoom : MonoBehaviour
     }
 
     // https://docs.unity3d.com/ScriptReference/WaitForEndOfFrame.html
+    // TODO CPU Image https://docs.unity3d.com/Packages/com.unity.xr.arfoundation@1.0/manual/cpu-camera-image.html
     private string takeSnapshot() {
         Texture2D snap = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
         snap.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
@@ -120,6 +121,7 @@ public class DrawRoom : MonoBehaviour
         ToastHelper.ShowToast("Screenshot saved in " + pathSnap);
         return fn;
     }
+
 
     [ContextMenu("Save")]
     private void Save() {

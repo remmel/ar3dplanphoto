@@ -184,7 +184,7 @@ namespace GoogleARCore.Examples.ComputerVision
                 return;
             }
 
-            using (var image = Frame.CameraImage.AcquireCameraImageBytes())
+            using (CameraImageBytes image = Frame.CameraImage.AcquireCameraImageBytes())
             {
                 if (!image.IsAvailable)
                 {
