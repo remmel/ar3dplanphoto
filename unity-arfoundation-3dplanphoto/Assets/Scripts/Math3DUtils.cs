@@ -314,4 +314,12 @@ public class Math3DUtils
 
         return go;
     }
+
+    public static void Log(string message) {
+        string time = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/log.txt", true);
+        writer.WriteLine(time + " : " + message);
+        writer.Close();
+    }
 }

@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 public class DrawProjector : MonoBehaviour
 {
     public GameObject plane; //where to display the photo
 
-    public GameObject cube;
-
     private int w;
     private int h;
-    int vfov = 60;
+    public float vfov = 60;
     float far = 1f; //how far should we place the projector for the projected plane
 
     public string fn = null;
@@ -48,6 +44,7 @@ public class DrawProjector : MonoBehaviour
         
         Debug.Log("w:" + w + " h:" + h);
         this.GetComponent<Camera>().aspect = this.GetComponent<Projector>().aspectRatio = (float)w / h;
+        this.GetComponent<Camera>().fieldOfView = this.GetComponent<Projector>().fieldOfView = this.vfov;
 
         float hfov = getHorizontalFov();
         Debug.Log("hfov:" + hfov);
@@ -57,7 +54,7 @@ public class DrawProjector : MonoBehaviour
 
         Vector3 centerplane = this.transform.position + this.transform.forward * far; //an alternative is to use go.transform.Translate
         plane.transform.position = centerplane;
-        plane.transform.localScale = new Vector3(halfw * 2 * 0.1f, 0.1f, halfh * 2 * 0.1f);
+        plane.transform.localScale = new Vector3(halfw * 2f, halfh * 2f, 1f);
 
         Vector3 ne = ProjectOnPlaneViewport(new Vector2(1, 1));
         Vector3 se = ProjectOnPlaneViewport(new Vector2(1, 0));

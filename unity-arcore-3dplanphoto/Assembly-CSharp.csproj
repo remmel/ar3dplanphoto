@@ -255,6 +255,8 @@
     <Compile Include="Assets\GoogleARCore\SDK\Scripts\XPSession.cs" />
     <Compile Include="Assets\GoogleARCore\SDK\Scripts\XPTrackingState.cs" />
     <Compile Include="Assets\Scripts\ARPlace.cs" />
+    <Compile Include="Assets\Scripts\FeaturePointColors.cs" />
+    <Compile Include="Assets\Scripts\TakePhotoTextureReader.cs" />
     <Compile Include="Assets\Scripts\Utils.cs" />
     <None Include="Assets\GoogleARCore\Examples\AugmentedFaces\Materials\Shaders\AugmentedFaceOccluder.shader" />
     <None Include="Assets\GoogleARCore\SDK\Materials\ARBackground.shader" />

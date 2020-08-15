@@ -40,3 +40,12 @@ https://forum.unity.com/threads/how-to-calculate-the-correct-inverse-view-projec
 
 
 https://stackoverflow.com/questions/49016071/how-to-take-save-picture-screenshot-using-unity-arcore-sdk
+
+
+Solutions to take picture:
+- Screenshot (2240x1080 H P20Pro ; image seems to be scale up + need to remove UI from screenshot)
+- ARFoundation : TakeScreenshot arCameraManager.TryGetLatestImage (1440x1080 H P20Pro image seems to be compressed too much; quality 75 according to ImageMagick)
+
+//TODO load/save focal
+
+1292

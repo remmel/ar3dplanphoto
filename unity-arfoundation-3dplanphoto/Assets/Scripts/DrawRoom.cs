@@ -83,45 +83,14 @@ public class DrawRoom : MonoBehaviour
         ReDrawUI3D();
     }
 
-    public void AddPhoto(Transform arCameraTransform) {
-        string fn = takeSnapshot();
+    public void AddPhoto(Vector3 position, Quaternion rotation, string fn) {
         // Create photo without UI
         GameObject go = new GameObject(fn);
-        go.transform.SetPositionAndRotation(arCameraTransform.position, arCameraTransform.rotation);
+        go.transform.SetPositionAndRotation(position, rotation);
         spawnedPhotos.Add(go);
         Save();
         ReDrawUI3D();
     }
-
-    private float calculateFov() { // ?!?
-        // Create a ray along the upper edge of the view frustum, centered on X
-        Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2.0f, Screen.height, 0));
-
-        // Find the angle between this ray and the camera forward direction
-        float angle = Vector3.Angle(Camera.main.transform.forward, ray.direction);
-
-        // Multiply by two and you have the fov!
-        float fov = angle * 2.0f;
-        ToastHelper.ShowToast("fov: " + fov);
-        return fov;
-    }
-
-    // https://docs.unity3d.com/ScriptReference/WaitForEndOfFrame.html
-    // TODO CPU Image https://docs.unity3d.com/Packages/com.unity.xr.arfoundation@1.0/manual/cpu-camera-image.html
-    private string takeSnapshot() {
-        Texture2D snap = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
-        snap.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
-        snap.Apply();
-
-        string fn = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "_screenshot.jpg";
-
-        string pathSnap = Application.persistentDataPath + "/" + fn;
-        System.IO.File.WriteAllBytes(pathSnap, snap.EncodeToJPG());
-        Debug.Log("Screenshot saved in " + pathSnap);
-        ToastHelper.ShowToast("Screenshot saved in " + pathSnap);
-        return fn;
-    }
-
 
     [ContextMenu("Save")]
     private void Save() {
@@ -316,6 +285,7 @@ public class DrawRoom : MonoBehaviour
     private GameObject DrawProjector(string fn, Vector3 position, Quaternion rotation) {
         GameObject o = Instantiate(projectorPrefab, position, rotation);
         o.GetComponent<DrawProjector>().fn = fn;
+        // o.GetComponent<DrawProjector>().vfov = 63;
         o.name = "Projector " + fn;
         ui3dGOs.Add(o);
         return o;

@@ -11,5 +11,6 @@ public class Obj
     public string name;
     public UnityEngine.Vector3 position;
     public UnityEngine.Quaternion rotation;
+    public UnityEngine.Vector3 eulerAngles; //debug, not used
     public string type;
 }

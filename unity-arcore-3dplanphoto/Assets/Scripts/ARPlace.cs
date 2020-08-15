@@ -23,8 +23,11 @@ public class ARPlace : MonoBehaviour {
     private bool m_Resolutioninitialized = false;
     public ARCoreSession ARSessionManager;
 
-    private ARCoreSession.OnChooseCameraConfigurationDelegate m_OnChoseCameraConfiguration =
-        null;
+    private ARCoreSession.OnChooseCameraConfigurationDelegate m_OnChoseCameraConfiguration = null;
+
+    private TextureReader TextureReaderComponent;
+    private Texture2D m_TextureToRender = null;
+    private byte[] m_EdgeImage = null;
 
     public void Awake() {
         // Enable ARCore to target 60fps camera capture frame rate on supported devices.
@@ -68,16 +71,15 @@ public class ARPlace : MonoBehaviour {
                     maximalConfig = config;
                 }
             }
+            m_Resolutioninitialized = true;
 
-           
             {
                 CameraConfig config = supportedConfigurations[m_HighestResolutionConfigIndex];
 
                 string info = "Config #" + m_HighestResolutionConfigIndex + "config: size:" + config.ImageSize + " maxFPS:" + config.MaxFPS + " minFPS:" + config.MinFPS + " textureSize:" + config.TextureSize + " depthSensorUsage:" + config.DepthSensorUsage;
                 Utils.Toast(info);
                 Utils.Log(info);
-            }
-                m_Resolutioninitialized = true;
+            }            
         }
 
         return m_HighestResolutionConfigIndex;
@@ -196,34 +198,30 @@ public class ARPlace : MonoBehaviour {
 
         Utils.Log(_CameraIntrinsicsToString(Frame.CameraImage.ImageIntrinsics, "ff"));
 
-        string fn = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "_photo3.jpg";
-        string path = Application.persistentDataPath + "/" + fn;
+        
 
         using (CameraImageBytes image = Frame.CameraImage.AcquireCameraImageBytes()) {
             if (!image.IsAvailable) {
                 Utils.Toast("not available");
                 return;
             }
+            OnImageAvailableBW(image.Width, image.Height, image.YRowStride, image.Y, image.Width * image.Height); //works but sometime camera not availble and only in B&W
+            //OnImageAvailableC(image.Width, image.Height, image, image.Width * image.Height);
+        }
 
-            //Frame.CameraImage.TextureIntrinsics.FocalLength
 
-            Utils.Toast("Image " + image.Width + "x" + image.Height + " " + fn);
+    void OnImageAvailableBW(int width, int height, int rowStride, IntPtr pixelBuffer, int bufferSize) {
+            byte[] bufferY = new byte[bufferSize];
+            
+            System.Runtime.InteropServices.Marshal.Copy(pixelBuffer, bufferY, 0, bufferSize);
 
-            byte[] bufferY = new byte[image.Width * image.Height];
-            byte[] bufferU = new byte[image.Width * image.Height / 2];
-            byte[] bufferV = new byte[image.Width * image.Height / 2];
-            System.Runtime.InteropServices.Marshal.Copy(image.Y, bufferY, 0, image.Width * image.Height);
-            System.Runtime.InteropServices.Marshal.Copy(image.U, bufferU, 0, image.Width * image.Height / 2);
-            System.Runtime.InteropServices.Marshal.Copy(image.V, bufferV, 0, image.Width * image.Height / 2);
-
-            Texture2D m_TextureRender = new Texture2D(image.Width, image.Height, TextureFormat.RGBA32, false, false);
+            Texture2D m_TextureRender = new Texture2D(width, height, TextureFormat.RGBA32, false, false);
 
             Color c = new Color();
-            for (int y = 0; y < image.Height; y++) {
-                for (int x = 0; x < image.Width; x++) {
-                    float Y = bufferY[y * image.Width + x];
-                    float U = bufferU[(y / 2) * image.Width + x];
-                    float V = bufferV[(y / 2) * image.Width + x];
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    float Y = bufferY[y * width + x];
+   
                     c.r = Y;
                     c.g = Y;
                     c.b = Y;
@@ -232,22 +230,103 @@ public class ARPlace : MonoBehaviour {
                     c.g /= 255.0f;
                     c.b /= 255.0f;
 
-                    if (c.r < 0.0f) c.r = 0.0f;
-                    if (c.g < 0.0f) c.g = 0.0f;
-                    if (c.b < 0.0f) c.b = 0.0f;
-
-                    if (c.r > 1.0f) c.r = 1.0f;
-                    if (c.g > 1.0f) c.g = 1.0f;
-                    if (c.b > 1.0f) c.b = 1.0f;
+                    MinMaxColor(ref c);
 
                     c.a = 1.0f;
-                    m_TextureRender.SetPixel(image.Width - 1 - x, y, c);
+                    m_TextureRender.SetPixel(width - 1 - x, y, c);
                 }
             }
 
+            string fn = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "_photo_bw.jpg";
+            string path = Application.persistentDataPath + "/" + fn;
+            Utils.Toast("Image " + width + "x" + height + " " + fn);
             File.WriteAllBytes(path, m_TextureRender.EncodeToJPG());
         }
     }
+
+
+    void OnImageAvailableC(int width, int height, CameraImageBytes image, int bufferSize) {
+        byte[] bufferY = new byte[bufferSize];
+        byte[] bufferU = new byte[bufferSize];
+        byte[] bufferV = new byte[bufferSize];
+
+        Marshal.Copy(image.Y, bufferY, 0, bufferSize);
+        Marshal.Copy(image.U, bufferU, 0, bufferSize);
+        Marshal.Copy(image.V, bufferV, 0, bufferSize);
+
+        int bufferSizeYUV = width * height * 3 / 2;
+        byte[] bufferYUV = new byte[bufferSizeYUV];
+        Marshal.Copy(image.Y, bufferYUV, 0, bufferSizeYUV);
+
+        Texture2D m_TextureRender = new Texture2D(width, height, TextureFormat.RGBA32, false, false);
+
+        Color c = new Color();
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                float Y = bufferY[y * width + x];
+                float U = bufferU[y * width + x];
+                float V = bufferV[y * width + x];
+
+                /*
+                c.r = Y; // + 1.4075f * (V - 128);
+                c.g = 0f; //Y - 0.3455f * (U - 128) - (0.7169f * (V - 128));
+                c.b = 0f; // Y + 1.7790f * (U - 128);*/
+
+                /*float Yvalue = bufferYUV[y * width + x];
+                float Uvalue = bufferYUV[(y / 2) * (width / 2) + x / 2 + (width * height)];
+                float Vvalue = bufferYUV[(y / 2) * (width / 2) + x / 2 + (width * height) + (width * height) / 4];*/
+                c.r = Y + (float)(1.370705 * (V - 128.0f));
+                c.g = Y - (float)(0.698001 * (V - 128.0f)) - (float)(0.337633 * (U - 128.0f));
+                c.b = Y + (float)(1.732446 * (U - 128.0f));
+
+
+                c.r /= 255.0f;
+                c.g /= 255.0f;
+                c.b /= 255.0f;
+
+                MinMaxColor(ref c);
+
+                c.a = 1.0f;
+                m_TextureRender.SetPixel(width - 1 - x, y, c);
+            }
+        }
+
+        string fn = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "_photo_bw.jpg";
+        string path = Application.persistentDataPath + "/" + fn;
+        Utils.Toast("Image " + width + "x" + height + " " + fn);
+        File.WriteAllBytes(path, m_TextureRender.EncodeToJPG());
+    }
+
+    private void MinMaxColor(ref Color c) {
+        if (c.r < 0.0f) c.r = 0.0f;
+        if (c.g < 0.0f) c.g = 0.0f;
+        if (c.b < 0.0f) c.b = 0.0f;
+
+        if (c.r > 1.0f) c.r = 1.0f;
+        if (c.g > 1.0f) c.g = 1.0f;
+        if (c.b > 1.0f) c.b = 1.0f;
+    }
+
+    private void OnImageAvailable(int width, int height, IntPtr pixelBuffer, int bufferSize) {
+        if (m_TextureToRender == null || m_EdgeImage == null || m_TextureToRender.width != width || m_TextureToRender.height != height) {
+
+            m_TextureToRender = new Texture2D(width, height, TextureFormat.R8, false, false);
+            m_EdgeImage = new byte[width * height * 4];
+        }
+
+        System.Runtime.InteropServices.Marshal.Copy(pixelBuffer, m_EdgeImage, 0, bufferSize * 4);
+
+        // Update the rendering texture with the sampled image.
+        m_TextureToRender.LoadRawTextureData(m_EdgeImage);
+        m_TextureToRender.Apply();
+        //EdgeDetectionBackgroundImage.material.SetTexture("_ImageTex", m_TextureToRender);
+        File.WriteAllBytes(Application.persistentDataPath + "/testImage.jpg", m_TextureToRender.EncodeToJPG());
+
+    }
+   /* void OnDisable() {
+        TextureReaderComponent.enabled = false;
+        TextureReaderComponent.OnImageAvailableCallback -= OnImageAvailable;
+    }*/
 
 
     public void Update() {

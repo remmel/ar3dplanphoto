@@ -34,12 +34,12 @@ public class ObjLoader
     public static Objs GameObjectsToObjs(List<GameObject> walls, List<GameObject> photos) {
         Objs objs = new Objs();
         foreach (GameObject o in walls) {
-            Obj obj = new Obj() { name = o.name, position = o.transform.position, rotation = o.transform.rotation, type=Obj.TYPE_WALL }; //todo add ro
+            Obj obj = new Obj() { name = o.name, position = o.transform.position, rotation = o.transform.rotation, eulerAngles=o.transform.rotation.eulerAngles, type=Obj.TYPE_WALL }; //todo add ro
             objs.list.Add(obj);
         }
 
         foreach (GameObject o in photos) {
-            Obj obj = new Obj() { name = o.name, position = o.transform.position, rotation = o.transform.rotation, type = Obj.TYPE_PHOTO };
+            Obj obj = new Obj() { name = o.name, position = o.transform.position, rotation = o.transform.rotation, eulerAngles = o.transform.rotation.eulerAngles, type = Obj.TYPE_PHOTO };
             objs.list.Add(obj);
         }
 
