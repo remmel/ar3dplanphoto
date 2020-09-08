@@ -423,8 +423,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wallToSpawn: {fileID: 9029304817219245080, guid: 0f379b03859c6804f8e640fc17211396,
     type: 3}
-  arCamera: {fileID: 0}
-  placementIndicator: {fileID: 0}
   spawnedWalls: []
   spawnedPhotos: []
   spawnedParentDebug: {fileID: 0}

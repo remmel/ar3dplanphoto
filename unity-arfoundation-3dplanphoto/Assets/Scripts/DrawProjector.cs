@@ -8,7 +8,7 @@ public class DrawProjector : MonoBehaviour
     private int w;
     private int h;
     public float vfov = 60;
-    float far = 1f; //how far should we place the projector for the projected plane
+    float far = 0.1f; //how far should we place the projector for the projected plane in meters
 
     public string fn = null;
 
@@ -67,10 +67,10 @@ public class DrawProjector : MonoBehaviour
         Debug.DrawLine(this.transform.position,sw, Color.white, 99f);
         Debug.DrawLine(this.transform.position, nw, Color.white, 99f);       
 
-        Math3DUtils.CreateSphere(ne, Color.red).transform.parent = this.transform;
-        Math3DUtils.CreateSphere(se, Color.red).transform.parent = this.transform;
-        Math3DUtils.CreateSphere(sw, Color.red).transform.parent = this.transform;
-        Math3DUtils.CreateSphere(nw, Color.red).transform.parent = this.transform;
+        Math3DUtils.CreateSphere(ne, Color.red, 0.01f).transform.parent = this.transform;
+        Math3DUtils.CreateSphere(se, Color.red, 0.01f).transform.parent = this.transform;
+        Math3DUtils.CreateSphere(sw, Color.red, 0.01f).transform.parent = this.transform;
+        Math3DUtils.CreateSphere(nw, Color.red, 0.01f).transform.parent = this.transform;
 
         //https://forum.unity.com/threads/solved-image-projection-shader.254196/
     }
