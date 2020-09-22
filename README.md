@@ -12,6 +12,8 @@ Can currently put 6 markers, one per face of the room (walls, floor, ceil), take
 Take picture and place a representation of the picture/projector in the 3D world.
 Can remove marker when clicking into it.
 
+Uses Unity AR Foundation framework 
+
 Unity/Scenes :
 - ARScene : main application
 - PCScene : debug application, no need of mobile

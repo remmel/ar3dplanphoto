@@ -1,13 +1,18 @@
 ﻿using ToastPlugin;
 using UnityEngine;
 using UnityEngine.EventSystems;
-
+using UnityEngine.UI;
 
 public class ARPlace : MonoBehaviour
 {
     public GameObject arCamera;
 
     public PlacementIndicator placementIndicator;
+
+    private float nextActionTime = 0.0f;
+
+    public Text videoBtnText;
+    protected bool videoStopped = true;
 
     public void Start() {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
@@ -42,7 +47,21 @@ public class ARPlace : MonoBehaviour
         //Transform t = arCamera.transform + Quaternion.Euler(0, 0, 180);
 
         GetComponent<DrawRoom>().AddPhoto(arCamera.transform.position, arCamera.transform.rotation * Quaternion.Euler(0, 0, 90), fn);
+        Debug.Log("Image saved in " + fn);
+        //ToastHelper.ShowToast("Image saved in " + fn);
+    }
 
-        ToastHelper.ShowToast("Image saved in " + fn);
+    public void BtnVideo() {
+
+        if(videoStopped) {
+
+            InvokeRepeating("BtnPhoto", 0, 0.5f); //every 2sec
+            videoBtnText.text = "Stop";
+        } else {
+            CancelInvoke("BtnPhoto");
+            videoBtnText.text = "Start";
+        }
+
+        videoStopped = !videoStopped;
     }
 }

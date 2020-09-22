@@ -27,21 +27,24 @@ public class PhotoXRCameraImage : MonoBehaviour
         if (!cameraConfInited) {
             NativeArray<XRCameraConfiguration> confs = arCameraManager.GetConfigurations(Allocator.Temp);
 
+            if(confs.Length == 0) {
+                ToastHelper.ShowToast("No Camera config found");
+            } else {
+                XRCameraConfiguration bestConf = confs[0];
+                int bestPixels = bestConf.width * bestConf.height;
 
-            XRCameraConfiguration bestConf = confs[0];
-            int bestPixels = bestConf.width * bestConf.height;
-
-            foreach (XRCameraConfiguration conf in confs) { //1 loop useless
-                int curPixels = conf.width * conf.height;
-                if (curPixels > bestPixels) {
-                    bestPixels = curPixels;
-                    bestConf = conf;
+                foreach (XRCameraConfiguration conf in confs) { //1 loop useless
+                    int curPixels = conf.width * conf.height;
+                    if (curPixels > bestPixels) {
+                        bestPixels = curPixels;
+                        bestConf = conf;
+                    }
                 }
-            }
 
-            arCameraManager.subsystem.currentConfiguration = bestConf;
-            cameraConfInited = true;
-            ToastHelper.ShowToast("Init Best conf camera");
+                arCameraManager.subsystem.currentConfiguration = bestConf;
+                cameraConfInited = true;
+                ToastHelper.ShowToast("Init Best conf camera");
+            }
         }
     }
 
@@ -61,7 +64,8 @@ public class PhotoXRCameraImage : MonoBehaviour
 
         float hfov = focalLenghToHFov(intrinsics);
 
-        ToastHelper.ShowToast("Take picture " + image.width + "x" + image.height + "hfov: "+hfov);
+        Debug.Log("Take picture " + image.width + "x" + image.height + "hfov: " + hfov);
+        //ToastHelper.ShowToast("Take picture " + image.width + "x" + image.height + "hfov: "+hfov);
 
         var conversionParams = new XRCameraImageConversionParams {
             // Get the entire image

@@ -89,7 +89,7 @@ public class DrawRoom : MonoBehaviour
         go.transform.SetPositionAndRotation(position, rotation);
         spawnedPhotos.Add(go);
         Save();
-        ReDrawUI3D();
+        //ReDrawUI3D();
     }
 
     [ContextMenu("Save")]
