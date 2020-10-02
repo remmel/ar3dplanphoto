@@ -105,7 +105,7 @@ public class TriangleTexture : MonoBehaviour
         // precalculate all uv (quicker to calculate worldToViewPoint or raycast?)
         Vector2[] uvs = new Vector2[m.vertices.Length];
         for(int i = 0; i<m.vertices.Length; i++) {
-            Vector2 uv = camera.WorldToViewportPoint(this.worldVertices[i]);
+            Vector2 uv = camera.WorldToViewportPoint(this.worldVertices[i]); //fov must be properly set
             uvs[i] = uv;
             
             /*if (true || debug) {
@@ -135,7 +135,7 @@ public class TriangleTexture : MonoBehaviour
                     vt.photo = camera.GetComponent<DrawProjector>().fn;
                     vt.distance = Vector3.Distance(camera.transform.position, vt.center);
                     vt.angle = curAngle;
-                    Debug.Log("angle: " + vt.angle);
+                    //Debug.Log("angle: " + vt.angle);
                 }
             }
         }

@@ -28,7 +28,7 @@ public class PhotoXRCameraImage : MonoBehaviour
             NativeArray<XRCameraConfiguration> confs = arCameraManager.GetConfigurations(Allocator.Temp);
 
             if(confs.Length == 0) {
-                ToastHelper.ShowToast("No Camera config found");
+                Debug.LogError("No Camera config found - Are you using an Android device?");
             } else {
                 XRCameraConfiguration bestConf = confs[0];
                 int bestPixels = bestConf.width * bestConf.height;
@@ -39,11 +39,12 @@ public class PhotoXRCameraImage : MonoBehaviour
                         bestPixels = curPixels;
                         bestConf = conf;
                     }
+                    Debug.Log("Conf: " + conf.width + "x" + conf.height + conf);
                 }
 
                 arCameraManager.subsystem.currentConfiguration = bestConf;
                 cameraConfInited = true;
-                ToastHelper.ShowToast("Init Best conf camera");
+                Debug.Log("Init Best conf camera");
             }
         }
     }
@@ -56,7 +57,6 @@ public class PhotoXRCameraImage : MonoBehaviour
             return null;
         }
 
-
         XRCameraIntrinsics intrinsics;
         if(!arCameraManager.TryGetIntrinsics(out intrinsics)) {
             ToastHelper.ShowToast("Error getting intrinsics");
@@ -64,8 +64,7 @@ public class PhotoXRCameraImage : MonoBehaviour
 
         float hfov = focalLenghToHFov(intrinsics);
 
-        Debug.Log("Take picture " + image.width + "x" + image.height + "hfov: " + hfov);
-        //ToastHelper.ShowToast("Take picture " + image.width + "x" + image.height + "hfov: "+hfov);
+        Debug.Log("Take picture " + image.width + "x" + image.height + " hfov: " + hfov);
 
         var conversionParams = new XRCameraImageConversionParams {
             // Get the entire image
@@ -118,7 +117,7 @@ public class PhotoXRCameraImage : MonoBehaviour
     public static float focalLenghToHFov(XRCameraIntrinsics intrinsics) {
         //??hfov = Math.atan2(717.1, 1104.3)*180/Math.PI*2 / vfov = Math.atan2(539.1, 1104.3)*180/Math.PI*2
 
-        Math3DUtils.Log("Focal: " + intrinsics.focalLength + " PrincipalPoint: " + intrinsics.principalPoint + " Resolution:" + intrinsics.resolution);
+        Debug.Log("Focal: " + intrinsics.focalLength + " PrincipalPoint: " + intrinsics.principalPoint + " Resolution:" + intrinsics.resolution);
 
         // Should get larger side?
         return Mathf.Atan2(intrinsics.focalLength.x, intrinsics.resolution.x) * Mathf.Rad2Deg * 2;

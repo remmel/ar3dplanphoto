@@ -270,7 +270,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &109062361
 RectTransform:
   m_ObjectHideFlags: 0
@@ -572,7 +572,7 @@ MonoBehaviour:
   ShowLog: 1
   ShowInEditor: 1
   Height: 0.3
-  Width: 0.3
+  Width: 0.5
   Margin: 20
   AnchorPosition: 2
   FontSize: 14
@@ -767,7 +767,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &616730089
 RectTransform:
   m_ObjectHideFlags: 0

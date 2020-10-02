@@ -89,7 +89,7 @@ public class DrawRoom : MonoBehaviour
         go.transform.SetPositionAndRotation(position, rotation);
         spawnedPhotos.Add(go);
         Save();
-        //ReDrawUI3D();
+        ReDrawUI3D();
     }
 
     [ContextMenu("Save")]
@@ -124,7 +124,6 @@ public class DrawRoom : MonoBehaviour
     private void DrawOneCorner(GameObject s0, GameObject s1, GameObject s2) {
         Vector3 point;
         bool success = Math3DUtils.planesIntersectAtSinglePoint(s0, s1, s2, out point);
-        Debug.Log("point" + point);
         if (success) {
             GameObject go = Math3DUtils.CreateSphere(point, Color.yellow, 0.1f);
             ui3dGOs.Add(go);
@@ -222,14 +221,16 @@ public class DrawRoom : MonoBehaviour
 
     [ContextMenu("GenerateObj")]
     void GenerateObj() {
+        Debug.Log("Divide walls into smaller triangles");
         Math3DUtils.MeshDivide(wallsQuads, 7);
 
         List<Camera> cameras = new List<Camera>();
         foreach (GameObject go in projectors)
-            if(go.active) //to be able to disable some projection to debug
+            if (go.active) //to be able to disable some projection to debug
                 cameras.Add(go.GetComponent<Camera>());
-
-        ObjExportUtils.Export(cameras, this.wallsQuads);
+        
+        String path = ObjExportUtils.Export(cameras, this.wallsQuads);
+        Debug.Log("File created: "+path);
     }
 
     [ContextMenu("DestroyUI3D")]
@@ -285,7 +286,7 @@ public class DrawRoom : MonoBehaviour
     private GameObject DrawProjector(string fn, Vector3 position, Quaternion rotation) {
         GameObject o = Instantiate(projectorPrefab, position, rotation);
         o.GetComponent<DrawProjector>().fn = fn;
-        // o.GetComponent<DrawProjector>().vfov = 63;
+        //o.GetComponent<DrawProjector>().vfov = 54;
         o.name = "Projector " + fn;
         ui3dGOs.Add(o);
         return o;

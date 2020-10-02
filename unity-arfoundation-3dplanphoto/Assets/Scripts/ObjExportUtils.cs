@@ -4,19 +4,26 @@ using UnityEngine;
 
 public class ObjExportUtils
 {
-    //TODO use script https://wiki.unity3d.com/index.php/ExportOBJ#:~:text=Select%20an%20object%20in%20the,OBJ%20file.
-    public static void Export(List<Camera> cameras, List<GameObject> gos) {
+    /**
+     * Create a textured .obj
+     * From list of walls generate mesh. From list of cameras generates it texture
+     * return the path of the .obj created
+     * //TODO use script https://wiki.unity3d.com/index.php/ExportOBJ#:~:text=Select%20an%20object%20in%20the,OBJ%20file.
+     */
+    public static string Export(List<Camera> cameras, List<GameObject> gos, string objname = "export") {
 
         // Calculate UV
+        Debug.Log("Calculate UV"); 
         foreach (GameObject go in gos) {
             TriangleTexture tt = go.GetComponent<TriangleTexture>() ?? go.AddComponent<TriangleTexture>();
             tt.CalculateUV(cameras);
         }
 
         // Export Mat & Objs
-        string objname = "export";
+        Debug.Log("Export material");
         ExportMaterial(objname, cameras);
-        ExportObjs(objname, gos);
+        Debug.Log("Export obj");
+        return ExportObjs(objname, gos);
     }
 
     private static void ExportMaterial(string objname, List<Camera> cameras) {
@@ -37,14 +44,16 @@ public class ObjExportUtils
         Write(Application.persistentDataPath + "/" + objname + ".mtl", mtl);
     }
 
-    private static void ExportObjs(string objname, List<GameObject> gos) {
+    private static string ExportObjs(string objname, List<GameObject> gos) {
         string export = "";
         int offsetV = 0;
         int offsetVT = 0;
         foreach (GameObject go in gos)
             export += ExportOneGameObject(go, ref offsetV, ref offsetVT) + "\n";
 
-        Write(Application.persistentDataPath + "/" + objname + ".obj", export);
+        string path = Application.persistentDataPath + "/" + objname + ".obj";
+        Write(path, export);
+        return path;
     }
 
     private static string ExportOneGameObject(GameObject go, ref int offsetV, ref int offsetVT) {

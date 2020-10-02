@@ -165,8 +165,6 @@ public class Math3DUtils
 
         m.RecalculateNormals();
 
-        Debug.Log(1);
-
         //Vector3.Distance(vertices[0], vertices[1])
     }
 

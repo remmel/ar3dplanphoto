@@ -9,8 +9,6 @@ public class ARPlace : MonoBehaviour
 
     public PlacementIndicator placementIndicator;
 
-    private float nextActionTime = 0.0f;
-
     public Text videoBtnText;
     protected bool videoStopped = true;
 
@@ -55,7 +53,7 @@ public class ARPlace : MonoBehaviour
 
         if(videoStopped) {
 
-            InvokeRepeating("BtnPhoto", 0, 0.5f); //every 2sec
+            InvokeRepeating("BtnPhoto", 0, 0.5f); //every 0.5sec
             videoBtnText.text = "Stop";
         } else {
             CancelInvoke("BtnPhoto");

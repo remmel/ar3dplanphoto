@@ -189,7 +189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   plane: {fileID: 8412113993054871118}
-  vfov: 60
+  vfov: 54
   fn: 
 --- !u!1 &8412113993054871118
 GameObject:

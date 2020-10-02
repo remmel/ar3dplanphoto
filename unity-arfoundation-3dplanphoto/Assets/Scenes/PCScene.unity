@@ -403,7 +403,7 @@ GameObject:
   - component: {fileID: 56669801}
   - component: {fileID: 56669800}
   m_Layer: 0
-  m_Name: Script
+  m_Name: GameController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -7,7 +7,7 @@ public class DrawProjector : MonoBehaviour
 
     private int w;
     private int h;
-    public float vfov = 60;
+    public float vfov; //doesnt match the fov of the sensor, should be around 54 for Honor 20 View, can be set in prefab
     float far = 0.1f; //how far should we place the projector for the projected plane in meters
 
     public string fn = null;
@@ -42,12 +42,11 @@ public class DrawProjector : MonoBehaviour
             h = 3464;
         }
         
-        Debug.Log("w:" + w + " h:" + h);
         this.GetComponent<Camera>().aspect = this.GetComponent<Projector>().aspectRatio = (float)w / h;
         this.GetComponent<Camera>().fieldOfView = this.GetComponent<Projector>().fieldOfView = this.vfov;
 
         float hfov = getHorizontalFov();
-        Debug.Log("hfov:" + hfov);
+        Debug.Log("vfov:" + this.vfov + " hfov:" + hfov + " w:" + w + " h:" + h + " fn:"+fn);
 
         var halfw = getHalfWidth();
         var halfh = getHalfHeight();
