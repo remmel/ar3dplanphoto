@@ -11,6 +11,9 @@ public class ARPlace : MonoBehaviour
 
     public Text videoBtnText;
     protected bool videoStopped = true;
+    public Text poseText;
+
+    private Quaternion rotOffest = Quaternion.Euler(0, 0, 90);
 
     public void Start() {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
@@ -18,6 +21,10 @@ public class ARPlace : MonoBehaviour
 
     public void Update() {
         UpdateClickToRemove();
+
+        poseText.text = "Rot:" + (arCamera.transform.rotation * rotOffest).eulerAngles + "\n" + 
+            "Pos:" + arCamera.transform.position;
+
     }
 
     private void UpdateClickToRemove() {
@@ -43,8 +50,9 @@ public class ARPlace : MonoBehaviour
         //string fn = GetComponent<PhotoSnapshot>().GetImage();
 
         //Transform t = arCamera.transform + Quaternion.Euler(0, 0, 180);
+        Debug.Log("Rot: " + (arCamera.transform.rotation * rotOffest).eulerAngles);
 
-        GetComponent<DrawRoom>().AddPhoto(arCamera.transform.position, arCamera.transform.rotation * Quaternion.Euler(0, 0, 90), fn);
+        GetComponent<DrawRoom>().AddPhoto(arCamera.transform.position, arCamera.transform.rotation * rotOffest, fn);
         Debug.Log("Image saved in " + fn);
         //ToastHelper.ShowToast("Image saved in " + fn);
     }

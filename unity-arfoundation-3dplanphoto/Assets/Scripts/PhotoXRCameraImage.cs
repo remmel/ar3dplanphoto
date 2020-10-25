@@ -39,7 +39,7 @@ public class PhotoXRCameraImage : MonoBehaviour
                         bestPixels = curPixels;
                         bestConf = conf;
                     }
-                    Debug.Log("Conf: " + conf.width + "x" + conf.height + conf);
+                    Debug.Log("Conf: " + conf);
                 }
 
                 arCameraManager.subsystem.currentConfiguration = bestConf;
@@ -114,12 +114,34 @@ public class PhotoXRCameraImage : MonoBehaviour
         return fn;
     }
 
+    /**
+     * Get the the Horizontal FOV or width FOV or x FOV. Normally it must be the largest side.
+     * That value changes everytime a new session is started (right?)
+     */
     public static float focalLenghToHFov(XRCameraIntrinsics intrinsics) {
-        //??hfov = Math.atan2(717.1, 1104.3)*180/Math.PI*2 / vfov = Math.atan2(539.1, 1104.3)*180/Math.PI*2
+        //Huawei P20 Pro: focal(1104.3,1104.3) principalPoint(717.1,539.1) resolution(1440,1080)
+        //dia=Math.sqrt(Math.pow(1080,2)+Math.pow(1440,2))=1800px
+        //hfov=Math.atan2(717.1, 1104.3)*180/Math.PI*2=66 | vfov=Math.atan2(539.1, 1104.3)*180/Math.PI*2=52
+        //diafov=Math.atan2(1800/2, 1104.3)*180/Math.PI*2=78
+        //Focal: (1105.6, 1107.9) PrincipalPoint: (720.6, 543.5) Resolution:(1440, 1080) HFov (width _ x): 66.19562 VFov (heigh _ y): 52.26654 Diagonal: 1800 Diagonal Fov : 78.29585
 
-        Debug.Log("Focal: " + intrinsics.focalLength + " PrincipalPoint: " + intrinsics.principalPoint + " Resolution:" + intrinsics.resolution);
+        //Honor View 20: focal(1076.2,1076.2) principalPoint(720.1,540.2) resolution(1440,1080)
+        //dia=Math.sqrt(Math.pow(1080,2)+Math.pow(1440,2))=1800px
+        //hfov=Math.atan2(720.1, 1076.2)*180/Math.PI*2=67.6 | vfov=Math.atan2(540.2, 1076.2)*180/Math.PI*2=53.3
+        //diafov=Math.atan2(1800/2, 1076.2)*180/Math.PI*2=79.8
+        //Focal: (1091.5, 1090.9) PrincipalPoint: (718.6, 550.1) Resolution:(1440, 1080) HFov (width _ x): 66.71733 VFov (heigh _ y): 53.5204 Diagonal: 1800 Diagonal Fov : 79.0171
 
-        // Should get larger side?
-        return Mathf.Atan2(intrinsics.focalLength.x, intrinsics.resolution.x) * Mathf.Rad2Deg * 2;
+        float diagonal = Mathf.Sqrt(Mathf.Pow(intrinsics.resolution.x, 2) + Mathf.Pow(intrinsics.resolution.y, 2));
+
+        Debug.Log("Focal: " + intrinsics.focalLength +
+        " PrincipalPoint: " + intrinsics.principalPoint +
+        " Resolution:" + intrinsics.resolution +
+        " HFov (width _ x): " + Mathf.Atan2(intrinsics.principalPoint.x, intrinsics.focalLength.x) *180/Mathf.PI * 2 +
+        " VFov (heigh _ y): " + Mathf.Atan2(intrinsics.principalPoint.y, intrinsics.focalLength.y) *180/Mathf.PI * 2 +
+        " Diagonal: "+  diagonal +
+        " Diagonal Fov : " + Mathf.Atan2(diagonal/2, intrinsics.focalLength.x) *180/Mathf.PI * 2);
+
+        // Should get larger side?  intrinsics.resolution.x/2 or intrinsics.principalPoint.x ?
+        return (Mathf.Atan2(intrinsics.principalPoint.x, intrinsics.focalLength.x) *180/Mathf.PI) * 2;
     }
 }
