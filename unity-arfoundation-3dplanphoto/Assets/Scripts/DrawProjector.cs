@@ -10,7 +10,7 @@ public class DrawProjector : MonoBehaviour
     public float vfov; //doesnt match the fov of the sensor, should be around 54 for Honor 20 View, can be set in prefab
     float far = 0.1f; //how far should we place the projector for the projected plane in meters
 
-    public string fn = null;
+    public string fn = null; //dir + image name eg "2020-12-24_143059/2020-12-24_143059....jpg"
 
     // Draw frame and put it 1m far from camera
     void Start() {

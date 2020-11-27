@@ -49,7 +49,10 @@ public class PhotoXRCameraImage : MonoBehaviour
         }
     }
 
-    public unsafe string GetImage() { //works
+    /**
+     * Get image and save it
+     */
+    public unsafe string GetImage(string dirname) { //works
 
         XRCameraImage image;
         if (!arCameraManager.TryGetLatestImage(out image)) {
@@ -105,8 +108,10 @@ public class PhotoXRCameraImage : MonoBehaviour
         m_Texture.LoadRawTextureData(buffer);
         m_Texture.Apply();
 
-        string fn = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "_fov_"+ hfov+ "_photo.jpg";
-        File.WriteAllBytes(Application.persistentDataPath + "/" + fn, m_Texture.EncodeToJPG());
+        if (!Directory.Exists(Application.persistentDataPath + "/" + dirname))
+            Directory.CreateDirectory(Application.persistentDataPath + "/" + dirname); //duplicated code
+        string fn = System.DateTime.Now.ToString("yyyy-MM-dd_HHmmss") + "_fov_"+ hfov+ "_photo.jpg";
+        File.WriteAllBytes(Application.persistentDataPath + "/" + dirname + "/" + fn, m_Texture.EncodeToJPG());
 
         // Done with our temporary data
         buffer.Dispose();

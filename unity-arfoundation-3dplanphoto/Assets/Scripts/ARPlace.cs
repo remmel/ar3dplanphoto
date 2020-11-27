@@ -46,7 +46,7 @@ public class ARPlace : MonoBehaviour
     }
 
     public void BtnPhoto() {
-        string fn = GetComponent<PhotoXRCameraImage>().GetImage();
+        string fn = GetComponent<PhotoXRCameraImage>().GetImage(GetComponent<DrawRoom>().dirname);
         //string fn = GetComponent<PhotoSnapshot>().GetImage();
 
         //Transform t = arCamera.transform + Quaternion.Euler(0, 0, 180);

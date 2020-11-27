@@ -652,7 +652,7 @@ MonoBehaviour:
   ShowLog: 1
   ShowInEditor: 1
   Height: 0.3
-  Width: 0.5
+  Width: 1
   Margin: 20
   AnchorPosition: 2
   FontSize: 14
@@ -1234,7 +1234,6 @@ GameObject:
   - component: {fileID: 885157067}
   - component: {fileID: 885157069}
   - component: {fileID: 885157070}
-  - component: {fileID: 885157071}
   m_Layer: 0
   m_Name: Game Controller
   m_TagString: Untagged
@@ -1268,6 +1267,7 @@ MonoBehaviour:
   matWall: {fileID: 0}
   projectorPrefab: {fileID: 6125753862893372832, guid: 6fc181a4d186de546b954c1d44bfff9e,
     type: 3}
+  dirname: 2020-11-27-162355
 --- !u!4 &885157068
 Transform:
   m_ObjectHideFlags: 0
@@ -1311,18 +1311,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arCameraManager: {fileID: 1871327608}
---- !u!114 &885157071
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 885157066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62f05e65c3e8b3a4088dff4252237523, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &910636088
 GameObject:
   m_ObjectHideFlags: 0

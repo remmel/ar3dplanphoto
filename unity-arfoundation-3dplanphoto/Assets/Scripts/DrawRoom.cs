@@ -42,6 +42,9 @@ public class DrawRoom : MonoBehaviour
 
     Dictionary<GameObject, List<Vector3>> wallPointsList = new Dictionary<GameObject, List<Vector3>>();
 
+    //Directory where to store files of the current session
+    public string dirname;
+
     public void Start() {
         //load parent to spawnedObjs2
 
@@ -51,6 +54,8 @@ public class DrawRoom : MonoBehaviour
             Load();
 
         ReDrawUI3D();
+
+        dirname = System.DateTime.Now.ToString("yyyy-MM-dd_HHmmss");
     }
 
     protected void LoadGameObjectsFromParent() {
@@ -94,7 +99,7 @@ public class DrawRoom : MonoBehaviour
 
     [ContextMenu("Save")]
     private void Save() {
-        ObjLoader.Write(ObjLoader.GameObjectsToObjs(spawnedWalls, spawnedPhotos));
+        ObjLoader.Write(dirname, ObjLoader.GameObjectsToObjs(spawnedWalls, spawnedPhotos));
     }
 
     [ContextMenu("Load")]
@@ -205,7 +210,7 @@ public class DrawRoom : MonoBehaviour
 
         //Draw photo frame from photo taken // also load fov ?
         foreach (GameObject go in spawnedPhotos) {
-            projectors.Add(DrawProjector(go.name, go.transform.position, go.transform.rotation));
+            projectors.Add(DrawProjector(dirname + "/" + go.name, go.transform.position, go.transform.rotation));
         }
 
         // Add Projector to dropdown
