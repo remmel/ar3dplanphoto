@@ -28,8 +28,6 @@ public class DrawRoom : MonoBehaviour
 
     public int currentRoom = 1;
 
-    public bool load = false;
-
     public Material matWall;
 
     public GameObject projectorPrefab;
@@ -50,12 +48,19 @@ public class DrawRoom : MonoBehaviour
 
         //LoadGameObjectsFromParent();
 
-        if(load)
+        if (Application.platform == RuntimePlatform.WindowsEditor && dirname == "") {
+            Debug.LogError("On Windows, set the variable 'dirname' with the directory name where is located the session. Dir in " + Application.persistentDataPath);
+            return;
+        }
+
+        if (dirname == "")
+            dirname = System.DateTime.Now.ToString("yyyy-MM-dd_HHmmss");
+        else
             Load();
 
         ReDrawUI3D();
 
-        dirname = System.DateTime.Now.ToString("yyyy-MM-dd_HHmmss");
+        
     }
 
     protected void LoadGameObjectsFromParent() {
@@ -104,7 +109,7 @@ public class DrawRoom : MonoBehaviour
 
     [ContextMenu("Load")]
     private void Load() {
-        Objs objs = ObjLoader.Read();
+        Objs objs = ObjLoader.Read(dirname);
 
         foreach(Obj obj in objs.list) {
             switch(obj.type) {

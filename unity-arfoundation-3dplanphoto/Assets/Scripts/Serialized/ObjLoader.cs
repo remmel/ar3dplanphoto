@@ -7,10 +7,10 @@ using UnityEngine;
  */ 
 public class ObjLoader
 {
-    private static string FN = "3dplanphoto_objs.json";
+    private static string FN = "3dplanphoto.json";
     // windows : C:\Users\remme\AppData\LocalLow\Remmel\unityarf3dplanphoto\
     // Android : Android\data\com.remmel.unityarf3dplanphoto\files\
-    private static string DATAPATH = UnityEngine.Application.persistentDataPath;
+    private static string DATAPATH = Application.persistentDataPath;
 
     public static Objs GenerateDumb() {
 
@@ -31,10 +31,7 @@ public class ObjLoader
         }
     }
 
-    public static Objs Read(string dirname = null) {
-        if(dirname == null) { //find last folder with json
-            throw new System.Exception("find dir TO be implemented");
-        }
+    public static Objs Read(string dirname) {
         using (StreamReader stream = new StreamReader(DATAPATH + "/" + dirname + "/" + FN)) {
             return JsonUtility.FromJson<Objs>(stream.ReadToEnd());
         }

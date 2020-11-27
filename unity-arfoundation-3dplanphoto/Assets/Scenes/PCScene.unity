@@ -431,10 +431,10 @@ MonoBehaviour:
   dropdownRoom: {fileID: 0}
   dropdownCamera: {fileID: 41263715}
   currentRoom: 1
-  load: 1
   matWall: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   projectorPrefab: {fileID: 6125753862893372832, guid: 6fc181a4d186de546b954c1d44bfff9e,
     type: 3}
+  dirname: 2020-10-02
 --- !u!4 &56669801
 Transform:
   m_ObjectHideFlags: 0
