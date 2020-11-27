@@ -1,12 +1,18 @@
 ## unity-arfoundation-3dplanphoto
-Objective is to be able to create 3d plan of house, adding real texture using an Android device. The mesh will be basic as each wall is a quad.
-Can currently put 6 markers, one per face of the room (walls, floor, ceil), take pictures and it generates the rooms (6 quads) with the texture in .obj format.
-Take picture and place a representation of the picture/projector in the 3D world.
-Can remove marker when clicking into it.
 
-The pose of photos and walls/floor/ceil will be saved in `‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‎‎‏‏‎‎‎‏‏‏‎‏‎‏‏‎‏‎‏‎‏‎‎‏‏‏‏‏‎‎‏‎‎‏‎‎‎‏‎‎‎‏‏‎‎‎‏‏‎‎‎‏‎‏‏‏‎‏‏‎Internal storage‎‏‎‎‏‎/Android/data/com.remmel.unityarf3dplanphoto/files/yyyy-MM-dd_HHmmss/3dplanphoto.json` aside the photos.
+### Objective
+Objective of that app is to create a 3d plan of a house with texture, placing himself the walls/ceil/floor. Thus rooms will be simple geometric shape.  
 
-Uses Unity AR Foundation framework 
+### Description
+[Android apk](unity-arfoundation-3dplanphoto/build.apk)
+
+Even if the app is still in development, you can currently put 6 markers, one per face of the room (walls, floor, ceil), take pictures and it generates the rooms (6 quads) with the texture in .obj format. (Recording on Android - Obj creation on Windows).
+
+Take picture and place a representation of the picture/projector in the 3D world.  
+Can remove marker when clicking into it.  
+The pose of photos and walls/floor/ceil will be saved in `‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‎‎‏‏‎‎‎‏‏‏‎‏‎‏‏‎‏‎‏‎‏‎‎‏‏‏‏‏‎‎‏‎‎‏‎‎‎‏‎‎‎‏‏‎‎‎‏‏‎‎‎‏‎‏‏‏‎‏‏‎Internal storage‎‏‎‎‏‎/Android/data/com.remmel.unityarf3dplanphoto/files/yyyy-MM-dd_HHmmss/3dplanphoto.json` aside the photos.  
+The app could also be used to record pictures with it pose (position + rotation).  
+It uses Unity AR Foundation framework.  
 
 Unity/Scenes :
 - ARScene : main application
@@ -20,6 +26,7 @@ Unity/Scenes :
 - Clicking a the button, can remove marker
 - Make Youtube + screenshot + upload .obj
 - Save video (take photo every 0.5s, but after 150 photos, the app froze)
+- Directly save obj on Android
 
 ### Problem
 - Unity/ARScene : drift problem, locations of markers changes, precision is not so great.

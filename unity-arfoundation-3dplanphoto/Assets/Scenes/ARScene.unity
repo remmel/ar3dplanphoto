@@ -1263,11 +1263,10 @@ MonoBehaviour:
   dropdownRoom: {fileID: 1127630671}
   dropdownCamera: {fileID: 0}
   currentRoom: 1
-  load: 0
   matWall: {fileID: 0}
   projectorPrefab: {fileID: 6125753862893372832, guid: 6fc181a4d186de546b954c1d44bfff9e,
     type: 3}
-  dirname: 2020-11-27-162355
+  dirname: 
 --- !u!4 &885157068
 Transform:
   m_ObjectHideFlags: 0
